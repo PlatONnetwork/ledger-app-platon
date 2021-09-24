@@ -22,7 +22,7 @@ void prc721_plugin_call(int message, void *parameters) {
         case LAT_PLUGIN_INIT_CONTRACT: {
             latPluginInitContract_t *msg = (latPluginInitContract_t *) parameters;
             prc721_parameters_t *context = (prc721_parameters_t *) msg->pluginContext;
-            // enforce that ETH amount should be 0
+            // enforce that LAT amount should be 0
             if (!allzeroes(msg->pluginSharedRO->txContent->value.value, 32)) {
                 PRINTF("Err: Transaction amount is not 0 for prc721 approval\n");
                 msg->result = LAT_PLUGIN_RESULT_ERROR;
@@ -93,7 +93,7 @@ void prc721_plugin_call(int message, void *parameters) {
         } break;
 
         case LAT_PLUGIN_QUERY_CONTRACT_ID: {
-            ethQueryContractID_t *msg = (ethQueryContractID_t *) parameters;
+            latQueryContractID_t *msg = (latQueryContractID_t *) parameters;
             strcpy(msg->name, "Allowance");
             strcpy(msg->version, "");
             msg->result = LAT_PLUGIN_RESULT_OK;

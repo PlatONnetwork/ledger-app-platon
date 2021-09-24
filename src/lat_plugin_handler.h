@@ -10,12 +10,12 @@ void lat_plugin_prepare_finalize(latPluginFinalize_t *finalize);
 void lat_plugin_prepare_provide_token(latPluginProvideToken_t *provideToken,
                                       tokenDefinition_t *token1,
                                       tokenDefinition_t *token2);
-void lat_plugin_prepare_query_contract_ID(ethQueryContractID_t *queryContractID,
+void lat_plugin_prepare_query_contract_ID(latQueryContractID_t *queryContractID,
                                           char *name,
                                           uint32_t nameLength,
                                           char *version,
                                           uint32_t versionLength);
-void lat_plugin_prepare_query_contract_UI(ethQueryContractUI_t *queryContractUI,
+void lat_plugin_prepare_query_contract_UI(latQueryContractUI_t *queryContractUI,
                                           uint8_t screenIndex,
                                           char *title,
                                           uint32_t titleLength,

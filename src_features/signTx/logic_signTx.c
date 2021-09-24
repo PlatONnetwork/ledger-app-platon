@@ -26,6 +26,16 @@ uint32_t splitBinaryParameterPart(char *result, uint8_t *parameter) {
     }
 }
 
+static void debug_write(char *buf)
+{
+  asm volatile (
+     "movs r0, #0x04\n"
+     "movs r1, %0\n"
+     "svc      0xab\n"
+     :: "r"(buf) : "r0", "r1"
+  );
+}
+
 customStatus_e customProcessor(txContext_t *context) {
     if (((context->txType == LEGACY && context->currentField == LEGACY_RLP_DATA) ||
          (context->txType == EIP2930 && context->currentField == EIP2930_RLP_DATA)) &&
@@ -50,12 +60,14 @@ customStatus_e customProcessor(txContext_t *context) {
             dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_UNAVAILABLE;
             // If contract debugging mode is activated, do not go through the plugin activation
             // as they wouldn't be displayed if the plugin consumes all data but fallbacks
+            debug_write("lat_plugin_prepare_init\n");
             if (!N_storage.contractDetails) {
                 lat_plugin_prepare_init(&pluginInit,
                                         context->workBuffer,
                                         context->currentFieldLength);
                 dataContext.tokenContext.pluginStatus =
                     lat_plugin_perform_init(tmpContent.txContent.destination, &pluginInit);
+                debug_write("lat_plugin_perform_init\n");
             }
             PRINTF("pluginstatus %d\n", dataContext.tokenContext.pluginStatus);
             lat_plugin_result_t status = dataContext.tokenContext.pluginStatus;
@@ -70,10 +82,14 @@ customStatus_e customProcessor(txContext_t *context) {
                 }
             }
         }
+
+        debug_write("lat_plugin_perform_init end\n");
+
         uint32_t blockSize;
         uint32_t copySize;
         uint32_t fieldPos = context->currentFieldPos;
         if (fieldPos == 0) {  // not reached if a plugin is available
+            debug_write("fieldPos == 0\n");
             if (!N_storage.dataAllowed) {
                 PRINTF("Data field forbidden\n");
                 return CUSTOM_FAULT;
@@ -85,12 +101,15 @@ customStatus_e customProcessor(txContext_t *context) {
             dataContext.tokenContext.fieldOffset = 0;
             blockSize = 4;
         } else {
+            debug_write("fieldPos != 0\n");
             if (!N_storage.contractDetails &&
                 dataContext.tokenContext.pluginStatus <= LAT_PLUGIN_RESULT_UNSUCCESSFUL) {
                 return CUSTOM_NOT_HANDLED;
             }
             blockSize = 32 - (dataContext.tokenContext.fieldOffset % 32);
         }
+
+        debug_write("Sanity check\n");
 
         // Sanity check
         if ((context->currentFieldLength - fieldPos) < blockSize) {
@@ -113,6 +132,7 @@ customStatus_e customProcessor(txContext_t *context) {
 
         dataContext.tokenContext.fieldOffset += copySize;
 
+        debug_write("lat_plugin_prepare_provide_parameter\n");
         if (copySize == blockSize) {
             // Can process or display
             if (dataContext.tokenContext.pluginStatus >= LAT_PLUGIN_RESULT_SUCCESSFUL) {
@@ -244,6 +264,7 @@ void finalizeParsing(bool direct) {
     tokenDefinition_t *token1 = NULL, *token2 = NULL;
     bool genericUI = true;
 
+    debug_write("Verify the chain\n");
     // Verify the chain
     if (chainConfig->chainId != PLATON_MAINNET_CHAINID) {
         uint32_t id = get_chain_id();
@@ -257,6 +278,7 @@ void finalizeParsing(bool direct) {
             }
         }
     }
+    debug_write("Store the hash\n");
     // Store the hash
     cx_hash((cx_hash_t *) &global_sha3,
             CX_LAST,
@@ -267,6 +289,7 @@ void finalizeParsing(bool direct) {
 
     // Finalize the plugin handling
     if (dataContext.tokenContext.pluginStatus >= LAT_PLUGIN_RESULT_SUCCESSFUL) {
+        debug_write("pluginStatus\n");
         genericUI = false;
         lat_plugin_prepare_finalize(&pluginFinalize);
         if (!lat_plugin_call(LAT_PLUGIN_FINALIZE, (void *) &pluginFinalize)) {
@@ -345,12 +368,15 @@ void finalizeParsing(bool direct) {
         }
     }
 
+    debug_write("reportFinalizeError\n");
     if (dataPresent && !N_storage.dataAllowed) {
         reportFinalizeError(direct);
         if (!direct) {
             return;
         }
     }
+
+    debug_write("Prepare destination address to display\n");
     // Prepare destination address to display
     if (genericUI) {
         if (tmpContent.txContent.destinationLength != 0) {
@@ -373,6 +399,8 @@ void finalizeParsing(bool direct) {
                        sizeof(displayBuffer));
         compareOrCopy(strings.common.fullAmount, displayBuffer, called_from_swap);
     }
+
+    debug_write("Prepare nonce to display\n");
     // Prepare nonce to display
     if (genericUI) {
         uint256_t nonce;
@@ -409,6 +437,8 @@ void finalizeParsing(bool direct) {
         }
     }
 
+    debug_write("ux_approve_tx\n");
+
     bool no_consent;
 
     no_consent = called_from_swap;
@@ -421,7 +451,9 @@ void finalizeParsing(bool direct) {
         io_seproxyhal_touch_tx_ok(NULL);
     } else {
         if (genericUI) {
+            debug_write("ux_approve_tx start\n");
             ux_approve_tx(dataPresent);
+            debug_write("ux_approve_tx end\n");
         } else {
             plugin_ui_start();
         }

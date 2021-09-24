@@ -26,6 +26,16 @@
 #define MAX_ADDRESS 20
 #define MAX_V       4
 
+static void debug_write(char *buf)
+{
+  asm volatile (
+     "movs r0, #0x04\n"
+     "movs r1, %0\n"
+     "svc      0xab\n"
+     :: "r"(buf) : "r0", "r1"
+  );
+}
+
 void initTx(txContext_t *context,
             cx_sha3_t *sha3,
             txContent_t *content,

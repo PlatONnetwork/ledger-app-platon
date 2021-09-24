@@ -621,7 +621,7 @@ __attribute__((section(".boot"))) int main(int arg0) {
     os_boot();
 
     if (!arg0) {
-        // called from dashboard as standalone eth app
+        // called from dashboard as standalone lat app
         coin_main(NULL);
         return 0;
     }
@@ -633,11 +633,11 @@ __attribute__((section(".boot"))) int main(int arg0) {
     }
     switch (args->command) {
         case RUN_APPLICATION:
-            // called as ethereum from altcoin or plugin
+            // called as Lat from altcoin or plugin
             coin_main(args->chain_config);
             break;
         default:
-            // called as ethereum or altcoin library
+            // called as Lat or altcoin library
             library_main(args);
     }
 #endif

@@ -14,6 +14,10 @@ typedef struct internalLatPlugin_t {
     PluginCall impl;
 } internalLatPlugin_t;
 
+extern const uint8_t STAKINGCONTRACTADDRESS[20];
+
+extern const uint8_t REWARDCONTRACTADDRESS[20];
+
 #define NUM_PRC20_SELECTORS 2
 extern const uint8_t* const PRC20_SELECTORS[NUM_PRC20_SELECTORS];
 
