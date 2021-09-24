@@ -85,6 +85,7 @@ void copyTxData(txContext_t *context, uint8_t *out, uint32_t length) {
     context->workBuffer += length;
     context->commandLength -= length;
     if (context->processingField) {
+        debug_write("currentFieldPos\n");
         context->currentFieldPos += length;
     }
 }
@@ -354,38 +355,48 @@ static bool processEIP2930Tx(txContext_t *context) {
 static bool processLegacyTx(txContext_t *context) {
     switch (context->currentField) {
         case LEGACY_RLP_CONTENT:
+            debug_write("content\n");
             processContent(context);
             if ((context->processingFlags & TX_FLAG_TYPE) == 0) {
                 context->currentField++;
             }
             break;
         case LEGACY_RLP_TYPE:
+            debug_write("type\n");
             processType(context);
             break;
         case LEGACY_RLP_NONCE:
+            debug_write("nonce\n");
             processNonce(context);
             break;
         case LEGACY_RLP_GASPRICE:
+            debug_write("gas price\n");
             processGasprice(context);
             break;
         case LEGACY_RLP_STARTGAS:
+            debug_write("gas limit\n");
             processStartGas(context);
             break;
         case LEGACY_RLP_TO:
+            debug_write("to\n");
             processTo(context);
             break;
         case LEGACY_RLP_VALUE:
+            debug_write("amount\n");
             processValue(context);
             break;
         case LEGACY_RLP_DATA:
         case LEGACY_RLP_R:
         case LEGACY_RLP_S:
+            debug_write("data\n");
             processData(context);
             break;
         case LEGACY_RLP_V:
+            debug_write("v\n");
             processV(context);
             break;
         default:
+            debug_write("default\n");
             PRINTF("Invalid RLP decoder context\n");
             return true;
     }

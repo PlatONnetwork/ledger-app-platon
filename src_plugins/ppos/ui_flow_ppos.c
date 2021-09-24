@@ -4,8 +4,9 @@
 #include "utils.h"
 #include "feature_signTx.h"
 #include "network.h"
+#include "ui_flow_ppos.h"
 
-uint8_t ppos_data[1024] = {};
+ppos_data_t ppos_data;
 
 bool node_id_to_string(const uint8_t *nodeID, char *out, uint32_t outLength){
   if(outLength <= 130) return false;
@@ -24,163 +25,163 @@ bool node_id_to_string(const uint8_t *nodeID, char *out, uint32_t outLength){
 }
 
 
-// // clang-format off
-// UX_STEP_NOCB(
-//     ux_confirm_create_staking_step,
-//     pnn,
-//     {
-//       &C_icon_eye,
-//       "TxType",
-//       "create staking",
-//     });
+// clang-format off
+UX_STEP_NOCB(
+    ux_confirm_create_staking_step,
+    pnn,
+    {
+      &C_icon_eye,
+      "TxType",
+      "create staking",
+    });
 
-// UX_STEP_NOCB(
-//     ux_confirm_increase_staking_step,
-//     pnn,
-//     {
-//       &C_icon_eye,
-//       "TxType",
-//       "increase staking",
-//     });
+UX_STEP_NOCB(
+    ux_confirm_increase_staking_step,
+    pnn,
+    {
+      &C_icon_eye,
+      "TxType",
+      "increase staking",
+    });
 
-// UX_STEP_NOCB(
-//     ux_confirm_withdrew_staking_step,
-//     pnn,
-//     {
-//       &C_icon_eye,
-//       "TxType",
-//       "withdrew staking",
-//     });
+UX_STEP_NOCB(
+    ux_confirm_withdrew_staking_step,
+    pnn,
+    {
+      &C_icon_eye,
+      "TxType",
+      "withdrew staking",
+    });
 
-// UX_STEP_NOCB(
-//     ux_confirm_delegate_step,
-//     pnn,
-//     {
-//       &C_icon_eye,
-//       "TxType",
-//       "delegate",
-//     });
+UX_STEP_NOCB(
+    ux_confirm_delegate_step,
+    pnn,
+    {
+      &C_icon_eye,
+      "TxType",
+      "delegate",
+    });
 
-// UX_STEP_NOCB(
-//     ux_confirm_withdrew_delegate_step,
-//     pnn,
-//     {
-//       &C_icon_eye,
-//       "TxType",
-//       "withdrew delegate",
-//     });
+UX_STEP_NOCB(
+    ux_confirm_withdrew_delegate_step,
+    pnn,
+    {
+      &C_icon_eye,
+      "TxType",
+      "withdrew delegate",
+    });
 
-//   UX_STEP_NOCB(
-//     ux_confirm_get_delegate_reward_step,
-//     pnn,
-//     {
-//       &C_icon_eye,
-//       "TxType",
-//       "get delegate reward",
-//     });
+  UX_STEP_NOCB(
+    ux_confirm_get_delegate_reward_step,
+    pnn,
+    {
+      &C_icon_eye,
+      "TxType",
+      "get delegate reward",
+    });
 
-// UX_STEP_NOCB(
-//     ux_confirm_nodeID_step,
-//     bnnn_paging,
-//     {
-//       .title = "nodeID",
-//       .text = strings.common.nodeID
-//     });
-
-
-// UX_STEP_NOCB(
-//     ux_confirm_amount_step,
-//     bnnn_paging,
-//     {
-//       .title = "Amount",
-//       .text = strings.common.fullAmount
-//     });
+UX_STEP_NOCB(
+    ux_confirm_nodeID_step,
+    bnnn_paging,
+    {
+      .title = "nodeID",
+      .text = strings.common.nodeID
+    });
 
 
-// UX_STEP_CB(
-//     ux_confirm_approve_step,
-//     pb,
-//     io_seproxyhal_touch_data_ok(NULL),
-//     {
-//       &C_icon_validate_14,
-//       "Approve",
-//     });
+UX_STEP_NOCB(
+    ux_confirm_amount_step,
+    bnnn_paging,
+    {
+      .title = "Amount",
+      .text = strings.common.fullAmount
+    });
 
-// UX_STEP_CB(
-//     ux_confirm_reject_step,
-//     pb,
-//     io_seproxyhal_touch_data_cancel(NULL),
-//     {
-//       &C_icon_crossmark,
-//       "Reject",
-//     });
 
-// // clang-format on
+UX_STEP_CB(
+    ux_confirm_approve_step,
+    pb,
+    io_seproxyhal_touch_data_ok(NULL),
+    {
+      &C_icon_validate_14,
+      "Approve",
+    });
 
-// // create staking
-// UX_FLOW(ux_confirm_create_staking_flow_,
-//         &ux_confirm_create_staking_step,
-//         &ux_confirm_nodeID_step,
-//         &ux_confirm_amount_step,
-//         &ux_confirm_approve_step,
-//         &ux_confirm_reject_step);
+UX_STEP_CB(
+    ux_confirm_reject_step,
+    pb,
+    io_seproxyhal_touch_data_cancel(NULL),
+    {
+      &C_icon_crossmark,
+      "Reject",
+    });
 
-// void ux_confirm_create_staking() {
-//     ux_flow_init(0, ux_confirm_create_staking_flow_, NULL);
-// }
+// clang-format on
 
-// // increase staking
-// UX_FLOW(ux_confirm_increase_staking_flow_,
-//         &ux_confirm_increase_staking_step,
-//         &ux_confirm_nodeID_step,
-//         &ux_confirm_amount_step,
-//         &ux_confirm_approve_step,
-//         &ux_confirm_reject_step);
+// create staking
+UX_FLOW(ux_confirm_create_staking_flow_,
+        &ux_confirm_create_staking_step,
+        &ux_confirm_nodeID_step,
+        &ux_confirm_amount_step,
+        &ux_confirm_approve_step,
+        &ux_confirm_reject_step);
 
-// void ux_confirm_increase_staking() {
-//     ux_flow_init(0, ux_confirm_increase_staking_flow_, NULL);
-// }
+void ux_confirm_create_staking() {
+    ux_flow_init(0, ux_confirm_create_staking_flow_, NULL);
+}
 
-// // withdrew staking
-// UX_FLOW(ux_confirm_withdrew_staking_flow_,
-//         &ux_confirm_withdrew_staking_step,
-//         &ux_confirm_nodeID_step,
-//         &ux_confirm_approve_step,
-//         &ux_confirm_reject_step);
+// increase staking
+UX_FLOW(ux_confirm_increase_staking_flow_,
+        &ux_confirm_increase_staking_step,
+        &ux_confirm_nodeID_step,
+        &ux_confirm_amount_step,
+        &ux_confirm_approve_step,
+        &ux_confirm_reject_step);
 
-// void ux_confirm_withdrew_staking() {
-//     ux_flow_init(0, ux_confirm_withdrew_staking_flow_, NULL);
-// }
+void ux_confirm_increase_staking() {
+    ux_flow_init(0, ux_confirm_increase_staking_flow_, NULL);
+}
 
-// // delegate
-// UX_FLOW(ux_confirm_delegate_flow_,
-//         &ux_confirm_delegate_step,
-//         &ux_confirm_nodeID_step,
-//         &ux_confirm_amount_step,
-//         &ux_confirm_approve_step,
-//         &ux_confirm_reject_step);
+// withdrew staking
+UX_FLOW(ux_confirm_withdrew_staking_flow_,
+        &ux_confirm_withdrew_staking_step,
+        &ux_confirm_nodeID_step,
+        &ux_confirm_approve_step,
+        &ux_confirm_reject_step);
 
-// void ux_confirm_delegate() {
-//     ux_flow_init(0, ux_confirm_delegate_flow_, NULL);
-// }
+void ux_confirm_withdrew_staking() {
+    ux_flow_init(0, ux_confirm_withdrew_staking_flow_, NULL);
+}
 
-// // withdrew delegate
-// UX_FLOW(ux_confirm_withdrew_delegate_flow_,
-//         &ux_confirm_withdrew_delegate_step,
-//         &ux_confirm_nodeID_step,
-//         &ux_confirm_approve_step,
-//         &ux_confirm_reject_step);
+// delegate
+UX_FLOW(ux_confirm_delegate_flow_,
+        &ux_confirm_delegate_step,
+        &ux_confirm_nodeID_step,
+        &ux_confirm_amount_step,
+        &ux_confirm_approve_step,
+        &ux_confirm_reject_step);
 
-// void ux_confirm_withdrew_delegate() {
-//     ux_flow_init(0, ux_confirm_withdrew_delegate_flow_, NULL);
-// }
+void ux_confirm_delegate() {
+    ux_flow_init(0, ux_confirm_delegate_flow_, NULL);
+}
 
-// //get delegate reward
-// UX_FLOW(ux_confirm_get_delegate_reward_flow_,
-//         &ux_confirm_get_delegate_reward_step,
-//         &ux_confirm_approve_step,
-//         &ux_confirm_reject_step);
+// withdrew delegate
+UX_FLOW(ux_confirm_withdrew_delegate_flow_,
+        &ux_confirm_withdrew_delegate_step,
+        &ux_confirm_nodeID_step,
+        &ux_confirm_approve_step,
+        &ux_confirm_reject_step);
 
-// void ux_confirm_get_delegate_reward() {
-//     ux_flow_init(0, ux_confirm_get_delegate_reward_flow_, NULL);
-// }
+void ux_confirm_withdrew_delegate() {
+    ux_flow_init(0, ux_confirm_withdrew_delegate_flow_, NULL);
+}
+
+//get delegate reward
+UX_FLOW(ux_confirm_get_delegate_reward_flow_,
+        &ux_confirm_get_delegate_reward_step,
+        &ux_confirm_approve_step,
+        &ux_confirm_reject_step);
+
+void ux_confirm_get_delegate_reward() {
+    ux_flow_init(0, ux_confirm_get_delegate_reward_flow_, NULL);
+}

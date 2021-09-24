@@ -6,6 +6,16 @@
 void staking_plugin_call(int message, void *parameters);
 void reward_plugin_call(int message, void *parameters);
 
+static void debug_write(char *buf)
+{
+  asm volatile (
+     "movs r0, #0x04\n"
+     "movs r1, %0\n"
+     "svc      0xab\n"
+     :: "r"(buf) : "r0", "r1"
+  );
+}
+
 void lat_plugin_prepare_init(latPluginInitContract_t *init, uint8_t *selector, uint32_t dataSize) {
     memset((uint8_t *) init, 0, sizeof(latPluginInitContract_t));
     init->selector = selector;
@@ -83,10 +93,12 @@ lat_plugin_result_t lat_plugin_perform_init(uint8_t *contractAddress,
     } else {
         if (memcmp(contractAddress, (const void *) PIC(STAKINGCONTRACTADDRESS), 20) == 0){          // 经济模型处理
             strcpy(dataContext.tokenContext.pluginName, "staking");
+            debug_write("staking\n");
             dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_OK;
             contractAddress = NULL;
         } else if (memcmp(contractAddress, (const void *) PIC(REWARDCONTRACTADDRESS), 20) == 0){    // 领取奖励
             strcpy(dataContext.tokenContext.pluginName, "reward");
+            debug_write("reward\n");
             dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_OK;
             contractAddress = NULL;
         } else {
@@ -102,6 +114,8 @@ lat_plugin_result_t lat_plugin_perform_init(uint8_t *contractAddress,
                     if (memcmp(init->selector, (const void *) PIC(selectors[j]), SELECTOR_SIZE) == 0) {
                         if ((INTERNAL_LAT_PLUGINS[i].availableCheck == NULL) ||
                             ((PluginAvailableCheck) PIC(INTERNAL_LAT_PLUGINS[i].availableCheck))()) {
+                            debug_write((char*) PIC(INTERNAL_LAT_PLUGINS[i].alias));
+                            debug_write("\n");
                             strcpy(dataContext.tokenContext.pluginName, INTERNAL_LAT_PLUGINS[i].alias);
                             dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_OK;
                             contractAddress = NULL;

@@ -33,7 +33,7 @@ void create_staking(uint8_t *data){
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
     tostring256(&amount, 10, strings.common.fullAmount, sizeof(strings.common.fullAmount));
 
-    // ux_confirm_create_staking();
+    ux_confirm_create_staking();
 }
 
 void increase_staking(uint8_t *data){
@@ -56,7 +56,7 @@ void increase_staking(uint8_t *data){
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
     tostring256(&amount, 10, strings.common.fullAmount, sizeof(strings.common.fullAmount));
 
-    // ux_confirm_increase_staking();
+    ux_confirm_increase_staking();
 }
 
 void withdrew_staking(uint8_t *data){
@@ -73,7 +73,7 @@ void withdrew_staking(uint8_t *data){
 
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
 
-   // ux_confirm_withdrew_staking();
+    ux_confirm_withdrew_staking();
 }
 
 void delegate(uint8_t *data){
@@ -96,7 +96,7 @@ void delegate(uint8_t *data){
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
     tostring256(&amount, 10, strings.common.fullAmount, sizeof(strings.common.fullAmount));
 
-   // ux_confirm_delegate();
+    ux_confirm_delegate();
 }
 
 void withdrew_delegate(uint8_t *data){
@@ -119,11 +119,12 @@ void withdrew_delegate(uint8_t *data){
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
     tostring256(&amount, 10, strings.common.fullAmount, sizeof(strings.common.fullAmount));
 
-    // ux_confirm_withdrew_delegate();
+    ux_confirm_withdrew_delegate();
 }
 
-static void parse_staking_info(uint8_t *data){
-    get_length(&data);
+static void parse_staking_info(){
+    uint8_t *data = ppos_data.begin;
+    if(0 == get_length(&data)) return;
     uint64_t data_length = get_length(&data);
     uint16_t func_type = get_func_type(data, data_length);
     data += data_length;
@@ -158,7 +159,8 @@ void staking_plugin_call(int message, void *parameters) {
                 msg->result = LAT_PLUGIN_RESULT_ERROR;
             } else {
                 PRINTF("staking plugin init\n");
-                memcpy(ppos_data,  msg->selector, msg->dataSize);
+                ppos_data.begin =  msg->selector;
+                ppos_data.end = msg->selector + msg->dataSize;
                 msg->result = LAT_PLUGIN_RESULT_OK;
             }
         } break;
@@ -170,7 +172,7 @@ void staking_plugin_call(int message, void *parameters) {
 
         case LAT_PLUGIN_FINALIZE: {
             latPluginFinalize_t *msg = (latPluginFinalize_t *) parameters;
-            parse_staking_info(ppos_data);
+            parse_staking_info();
             msg->result = LAT_PLUGIN_RESULT_OK;
         } break;
 

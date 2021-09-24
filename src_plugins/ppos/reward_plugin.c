@@ -11,11 +11,12 @@
 
 void get_delegate_reward(uint8_t *data){
     if(NULL == data) return;
-    // ux_confirm_get_delegate_reward();
+    ux_confirm_get_delegate_reward();
 }
 
-static void parse_reward_info(uint8_t *data){
-    get_length(&data);
+static void parse_reward_info(){
+    uint8_t *data = ppos_data.begin;
+    if(0 == get_length(&data)) return;
     uint64_t data_length = get_length(&data);
     uint16_t func_type = get_func_type(data, data_length);
     data += data_length;
@@ -38,7 +39,8 @@ void reward_plugin_call(int message, void *parameters) {
                 msg->result = LAT_PLUGIN_RESULT_ERROR;
             } else {
                 PRINTF("staking plugin init\n");
-                memcpy(ppos_data,  msg->selector, msg->dataSize);
+                ppos_data.begin =  msg->selector;
+                ppos_data.end = msg->selector + msg->dataSize;
                 msg->result = LAT_PLUGIN_RESULT_OK;
             }
         } break;
@@ -50,7 +52,7 @@ void reward_plugin_call(int message, void *parameters) {
 
         case LAT_PLUGIN_FINALIZE: {
             latPluginFinalize_t *msg = (latPluginFinalize_t *) parameters;
-            parse_reward_info(ppos_data);
+            parse_reward_info();
             msg->result = LAT_PLUGIN_RESULT_OK;
         } break;
 

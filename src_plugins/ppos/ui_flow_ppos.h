@@ -4,7 +4,12 @@
 #include <stdint.h>
 #include "uint256.h"
 
-extern uint8_t ppos_data[1024];
+typedef struct ppos_data_t {
+    uint8_t *begin;
+    uint8_t *end;
+} ppos_data_t;
+
+extern ppos_data_t ppos_data;
 
 bool node_id_to_string(const uint8_t *nodeID, char *out, uint32_t outLength);
 
