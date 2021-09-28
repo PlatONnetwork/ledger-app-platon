@@ -4,145 +4,119 @@
 #include "shared_context.h"
 #include "latUtils.h"
 #include "utils.h"
-#include "rlp.h"
-#include "ui_flow_ppos.h"
-
-static void debug_write(char *buf)
-{
-  asm volatile (
-     "movs r0, #0x04\n"
-     "movs r1, %0\n"
-     "svc      0xab\n"
-     :: "r"(buf) : "r0", "r1"
-  );
-}
+#include "ppos.h"
 
 #define CREATESTAKING 1000
+#define CREATESTAKINGPARANUM 14
 #define INCREASESTAKING 1002
+#define INCREASESTAKINGPARANUM 4
 #define WITHDREWSTAKING 1003
+#define WITHDREWSTAKINGPARANUM 2
 #define DELEGATE 1004
+#define DELEGATEPARANUM 4
 #define WITHDREWDELEGATE 1005
+#define WITHDREWDELEGATEPARANUM 4
 
 void create_staking(uint8_t *data){
     int node_id_step = 3;
     uint8_t node_id[64] = {};
     int amount_step = 8;
-    uint256_t amount;
 
-    for(int i = 1; i <= 8; ++i){
+    for(int i = 1; i < CREATESTAKINGPARANUM; ++i){
         uint64_t data_length = get_length(&data);
+        data_length = get_length(&data);
         if(node_id_step == i){
-            data_length = get_length(&data);
             memcpy(node_id, data, data_length);
         }
         if(amount_step == i){
-            data_length = get_length(&data);
-            get_amount(data, data_length, &amount);
+            get_amount(data, data_length);
         }
         data += data_length;
     }
 
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
-    tostring256(&amount, 10, strings.common.fullAmount, sizeof(strings.common.fullAmount));
-
-    ux_confirm_create_staking();
+    strcpy(strings.common.ppos_type, "create staking");
 }
 
 void increase_staking(uint8_t *data){
     int node_id_step = 1;
     uint8_t node_id[64] = {};
     int amount_step = 3;
-    uint256_t amount;
 
-    for(int i = 1; i <= 8; ++i){
+    for(int i = 1; i < INCREASESTAKINGPARANUM; ++i){
         uint64_t data_length = get_length(&data);
+        data_length = get_length(&data);
         if(node_id_step == i){
-            data_length = get_length(&data);
             memcpy(node_id, data, data_length);
         }
         if(amount_step == i){
-            data_length = get_length(&data);
-            get_amount(data, data_length, &amount);
+            get_amount(data, data_length);
         }
         data += data_length;
     }
 
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
-    tostring256(&amount, 10, strings.common.fullAmount, sizeof(strings.common.fullAmount));
-
-    ux_confirm_increase_staking();
+    strcpy(strings.common.ppos_type, "increase staking");
 }
 
 void withdrew_staking(uint8_t *data){
     int node_id_step = 1;
     uint8_t node_id[64] = {};
 
-    for(int i = 1; i <= 8; ++i){
+    for(int i = 1; i < WITHDREWSTAKINGPARANUM; ++i){
         uint64_t data_length = get_length(&data);
+        data_length = get_length(&data);
         if(node_id_step == i){
-            data_length = get_length(&data);
             memcpy(node_id, data, data_length);
         }
         data += data_length;
     }
 
+    strings.common.bPposAmount = false;
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
-
-    ux_confirm_withdrew_staking();
+    strcpy(strings.common.ppos_type, "withdrew staking");
 }
 
 void delegate(uint8_t *data){
     int node_id_step = 2;
     uint8_t node_id[64] = {};
     int amount_step = 3;
-    uint256_t amount;
 
-    for(int i = 1; i <= 8; ++i){
+    for(int i = 1; i < DELEGATEPARANUM; ++i){
         uint64_t data_length = get_length(&data);
+        data_length = get_length(&data);
         if(node_id_step == i){
-            data_length = get_length(&data);
             memcpy(node_id, data, data_length);
         }
         if(amount_step == i){
-            data_length = get_length(&data);
-            get_amount(data, data_length, &amount);
+            get_amount(data, data_length);
         }
         data += data_length;
     }
 
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
-    tostring256(&amount, 10, strings.common.fullAmount, sizeof(strings.common.fullAmount));
-    debug_write(strings.common.nodeID);
-    debug_write("\n");
-    debug_write(strings.common.fullAmount);
-    debug_write("\n");
-
-    ux_confirm_delegate();
+    strcpy(strings.common.ppos_type, "delegate");
 }
 
 void withdrew_delegate(uint8_t *data){
     int node_id_step = 2;
     uint8_t node_id[64] = {};
     int amount_step = 3;
-    uint256_t amount;
 
-    for(int i = 1; i <= 8; ++i){
+    for(int i = 1; i < WITHDREWDELEGATEPARANUM; ++i){
         uint64_t data_length = get_length(&data);
+        data_length = get_length(&data);
         if(node_id_step == i){
-            data_length = get_length(&data);
             memcpy(node_id, data, data_length);
         }
         if(amount_step == i){
-            data_length = get_length(&data);
-            get_amount(data, data_length, &amount);
+            get_amount(data, data_length);
         }
         data += data_length;
     } 
 
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
-    tostring256(&amount, 10, strings.common.fullAmount, sizeof(strings.common.fullAmount));
-
-    ux_confirm_withdrew_delegate();
+    strcpy(strings.common.ppos_type, "withdrew delegate");
 }
 
 static void parse_staking_info(){
@@ -151,13 +125,11 @@ static void parse_staking_info(){
     if(0 == get_length(&data)) return;
     uint64_t data_length = get_length(&data);
     uint16_t func_type = get_func_type(data, data_length);
-    debug_write("parse_staking_info\n");
-
-    char buffer[10] = {};
-    snprintf(buffer, 7, "%d\n", func_type);
-    debug_write(buffer);
 
     data += data_length;
+    strings.common.bPpos = true;
+    strings.common.bPposAmount = true;
+
     switch(func_type){
         case CREATESTAKING:
             create_staking(data);

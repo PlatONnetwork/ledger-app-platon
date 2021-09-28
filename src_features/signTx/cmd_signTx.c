@@ -3,16 +3,6 @@
 #include "ui_flow.h"
 #include "feature_signTx.h"
 
-static void debug_write(char *buf)
-{
-  asm volatile (
-     "movs r0, #0x04\n"
-     "movs r1, %0\n"
-     "svc      0xab\n"
-     :: "r"(buf) : "r0", "r1"
-  );
-}
-
 #define CHUNKSIZE 150
 uint8_t all_tx_data[512];
 uint16_t all_tx_data_offset;
@@ -26,10 +16,6 @@ void handleSign(uint8_t p1,
     UNUSED(tx);
     parserStatus_e txResult;
     uint32_t i;
-
-    char buffer[10] = {};
-    snprintf(buffer, 7, "%d\n", dataLength);
-    debug_write(buffer);
 
     if (p1 == P1_FIRST) {
         all_tx_data_offset = 0;
@@ -107,7 +93,7 @@ void handleSign(uint8_t p1,
         PRINTF("Parser not initialized\n");
         THROW(0x6985);
     }
-    debug_write("processTx\n");
+
     txResult = processTx(&txContext,
                          workBuffer,
                          dataLength,
@@ -126,12 +112,10 @@ void handleSign(uint8_t p1,
             THROW(0x6A80);
     }
 
-    debug_write("finalizeParsing\n");
     if (txResult == USTREAM_FINISHED) {
         finalizeParsing(false);
     }
 
     *flags |= IO_ASYNCH_REPLY;
 
-    debug_write("handleSign end\n");
 }

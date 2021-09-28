@@ -124,6 +124,27 @@ UX_STEP_NOCB(
       .title = "Network",
       .text = strings.common.network_name,
     });
+UX_STEP_NOCB(
+    ux_approval_ppos_type_step,
+    bnnn_paging,
+    {
+      .title = "Ppos type",
+      .text = strings.common.ppos_type,
+    });
+UX_STEP_NOCB(
+    ux_confirm_nodeID_step,
+    bnnn_paging,
+    {
+      .title = "nodeID",
+      .text = strings.common.nodeID
+    });
+UX_STEP_NOCB(
+    ux_approval_ppos_amount_step,
+    bnnn_paging,
+    {
+      .title = "Ppos Amount",
+      .text = strings.common.pposAmount
+    });
 UX_STEP_CB(
     ux_approval_accept_step,
     pbb,
@@ -159,7 +180,7 @@ UX_STEP_NOCB(ux_approval_data_warning_step,
     });
 // clang-format on
 
-const ux_flow_step_t *ux_approval_tx_flow_[10];
+const ux_flow_step_t *ux_approval_tx_flow_[13];
 
 void ux_approve_tx(bool dataPresent) {
     int step = 0;
@@ -178,6 +199,16 @@ void ux_approve_tx(bool dataPresent) {
         ux_approval_tx_flow_[step++] = &ux_approval_network_step;
     }
     ux_approval_tx_flow_[step++] = &ux_approval_fees_step;
+
+    if(strings.common.bPpos){
+      strings.common.bPpos = false;
+      ux_approval_tx_flow_[step++] = &ux_approval_ppos_type_step;
+      ux_approval_tx_flow_[step++] = &ux_confirm_nodeID_step;
+      if(strings.common.bPposAmount) {
+        ux_approval_tx_flow_[step++] = &ux_approval_ppos_amount_step;
+        strings.common.bPposAmount = false;
+      }
+    }
     ux_approval_tx_flow_[step++] = &ux_approval_accept_step;
     ux_approval_tx_flow_[step++] = &ux_approval_reject_step;
     ux_approval_tx_flow_[step++] = FLOW_END_STEP;

@@ -26,16 +26,6 @@
 #define MAX_ADDRESS 20
 #define MAX_V       4
 
-static void debug_write(char *buf)
-{
-  asm volatile (
-     "movs r0, #0x04\n"
-     "movs r1, %0\n"
-     "svc      0xab\n"
-     :: "r"(buf) : "r0", "r1"
-  );
-}
-
 void initTx(txContext_t *context,
             cx_sha3_t *sha3,
             txContent_t *content,
@@ -72,10 +62,6 @@ uint8_t readTxByte(txContext_t *context) {
 }
 
 void copyTxData(txContext_t *context, uint8_t *out, uint32_t length) {
-    char buffer[10] = {};
-    snprintf(buffer, 7, "%d\n", context->commandLength);
-    debug_write(buffer);
-
     if (context->commandLength < length) {
         PRINTF("copyTxData Underflow\n");
         THROW(EXCEPTION);
@@ -88,11 +74,8 @@ void copyTxData(txContext_t *context, uint8_t *out, uint32_t length) {
     }
     context->workBuffer += length;
     context->commandLength -= length;
-    snprintf(buffer, 7, "%d\n", length);
-    debug_write(buffer);
 
     if (context->processingField) {
-        debug_write("currentFieldPos\n");
         context->currentFieldPos += length;
     }
 }
@@ -277,7 +260,6 @@ static void processTo(txContext_t *context) {
 
 static void processData(txContext_t *context) {
     if (context->currentFieldIsList) {
-        debug_write("context->currentFieldIsList\n")
         PRINTF("Invalid type for RLP_DATA\n");
         THROW(EXCEPTION);
     }
@@ -295,12 +277,10 @@ static void processData(txContext_t *context) {
 static void processV(txContext_t *context) {
     if (context->currentFieldIsList) {
         PRINTF("Invalid type for RLP_V\n");
-        debug_write("context->currentFieldIsList\n");
         THROW(EXCEPTION);
     }
     if (context->currentFieldLength > MAX_V) {
         PRINTF("Invalid length for RLP_V\n");
-        debug_write("context->currentFieldLength > MAX_V\n");
         THROW(EXCEPTION);
     }
     if (context->currentFieldPos < context->currentFieldLength) {
@@ -365,48 +345,38 @@ static bool processEIP2930Tx(txContext_t *context) {
 static bool processLegacyTx(txContext_t *context) {
     switch (context->currentField) {
         case LEGACY_RLP_CONTENT:
-            debug_write("content\n");
             processContent(context);
             if ((context->processingFlags & TX_FLAG_TYPE) == 0) {
                 context->currentField++;
             }
             break;
         case LEGACY_RLP_TYPE:
-            debug_write("type\n");
             processType(context);
             break;
         case LEGACY_RLP_NONCE:
-            debug_write("nonce\n");
             processNonce(context);
             break;
         case LEGACY_RLP_GASPRICE:
-            debug_write("gas price\n");
             processGasprice(context);
             break;
         case LEGACY_RLP_STARTGAS:
-            debug_write("gas limit\n");
             processStartGas(context);
             break;
         case LEGACY_RLP_TO:
-            debug_write("to\n");
             processTo(context);
             break;
         case LEGACY_RLP_VALUE:
-            debug_write("amount\n");
             processValue(context);
             break;
         case LEGACY_RLP_DATA:
         case LEGACY_RLP_R:
         case LEGACY_RLP_S:
-            debug_write("data\n");
             processData(context);
             break;
         case LEGACY_RLP_V:
-            debug_write("v\n");
             processV(context);
             break;
         default:
-            debug_write("default\n");
             PRINTF("Invalid RLP decoder context\n");
             return true;
     }
@@ -449,10 +419,6 @@ static parserStatus_e parseRLP(txContext_t *context) {
         return USTREAM_FAULT;
     }
 
-    char buffer[10] = {};
-    snprintf(buffer, 7, "%d\n", context->currentFieldLength);
-    debug_write(buffer);
-
     if (offset == 0) {
         // Hack for single byte, self encoded
         context->workBuffer--;
@@ -478,23 +444,18 @@ static parserStatus_e processTxInternal(txContext_t *context) {
         if (((context->txType == LEGACY && context->currentField == LEGACY_RLP_V) ||
              (context->txType == EIP2930 && context->currentField == EIP2930_RLP_YPARITY)) &&
             (context->commandLength == 0)) {
-            debug_write("context->content->vLength = 0\n");
             context->content->vLength = 0;
             return USTREAM_FINISHED;
         }
         if (context->commandLength == 0) {
-            debug_write("context->commandLength == 0\n");
             return USTREAM_PROCESSING;
         }
         if (!context->processingField) {
-            debug_write("parseRLP\n");
             parserStatus_e status = parseRLP(context);
             if (status != USTREAM_CONTINUE) {
-                debug_write("status != USTREAM_CONTINUE\n");
                 return status;
             }
         }
-        debug_write("customProcessor\n");
         if (context->customProcessor != NULL) {
             customStatus = context->customProcessor(context);
             switch (customStatus) {
@@ -513,13 +474,11 @@ static parserStatus_e processTxInternal(txContext_t *context) {
         }
         if (customStatus == CUSTOM_NOT_HANDLED) {
             PRINTF("Current field: %u\n", context->currentField);
-            debug_write("customStatus == CUSTOM_NOT_HANDLED\n");
             switch (context->txType) {
                 bool fault;
                 case LEGACY:
                     fault = processLegacyTx(context);
                     if (fault) {
-                        debug_write("fault\n");
                         return USTREAM_FAULT;
                     } else {
                         break;
@@ -548,11 +507,6 @@ parserStatus_e processTx(txContext_t *context,
         TRY {
             context->workBuffer = buffer;
             context->commandLength = length;
-
-            char buffer[10] = {};
-            snprintf(buffer, 7, "%d\n", context->commandLength);
-            debug_write(buffer);
-
             context->processingFlags = processingFlags;
             result = processTxInternal(context);
         }

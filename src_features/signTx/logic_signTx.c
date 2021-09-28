@@ -26,16 +26,6 @@ uint32_t splitBinaryParameterPart(char *result, uint8_t *parameter) {
     }
 }
 
-static void debug_write(char *buf)
-{
-  asm volatile (
-     "movs r0, #0x04\n"
-     "movs r1, %0\n"
-     "svc      0xab\n"
-     :: "r"(buf) : "r0", "r1"
-  );
-}
-
 customStatus_e customProcessor(txContext_t *context) {
     if (((context->txType == LEGACY && context->currentField == LEGACY_RLP_DATA) ||
          (context->txType == EIP2930 && context->currentField == EIP2930_RLP_DATA)) &&
@@ -43,15 +33,13 @@ customStatus_e customProcessor(txContext_t *context) {
         dataPresent = true;
         // If handling a new contract rather than a function call, abort immediately
         if (tmpContent.txContent.destinationLength == 0) {
-            debug_write("tmpContent.txContent.destinationLength == 0\n");
             return CUSTOM_NOT_HANDLED;
         }
         // If data field is less than 4 bytes long, do not try to use a plugin.
         if (context->currentFieldLength < 4) {
-            debug_write("context->currentFieldLength < 4\n");
             return CUSTOM_NOT_HANDLED;
         }
-        debug_write("context->currentFieldPos == 0\n");
+
         if (context->currentFieldPos == 0) {
             latPluginInitContract_t pluginInit;
             // If handling the beginning of the data field, assume that the function selector is
@@ -68,17 +56,14 @@ customStatus_e customProcessor(txContext_t *context) {
                 lat_plugin_prepare_init(&pluginInit,
                                         context->workBuffer,
                                         context->currentFieldLength);
-                debug_write("lat_plugin_prepare_init\n");
                 dataContext.tokenContext.pluginStatus =
                     lat_plugin_perform_init(tmpContent.txContent.destination, &pluginInit);
-                debug_write("lat_plugin_perform_init\n");
             }
             PRINTF("pluginstatus %d\n", dataContext.tokenContext.pluginStatus);
             lat_plugin_result_t status = dataContext.tokenContext.pluginStatus;
             if (status == LAT_PLUGIN_RESULT_ERROR) {
                 return CUSTOM_FAULT;
             } else if (status >= LAT_PLUGIN_RESULT_SUCCESSFUL) {
-                debug_write("status >= LAT_PLUGIN_RESULT_SUCCESSFUL\n");
                 dataContext.tokenContext.fieldIndex = 0;
                 dataContext.tokenContext.fieldOffset = 0;
 
@@ -94,7 +79,6 @@ customStatus_e customProcessor(txContext_t *context) {
                 }
                 
                 if (context->currentFieldLength == 4) {
-                    debug_write("CUSTOM_NOT_HANDLED\n");
                     return CUSTOM_NOT_HANDLED;
                 }
             }
@@ -104,9 +88,7 @@ customStatus_e customProcessor(txContext_t *context) {
         uint32_t copySize;
         uint32_t fieldPos = context->currentFieldPos;
         if (fieldPos == 0) {  // not reached if a plugin is available
-            debug_write("fieldPos == 0\n");
             if (!N_storage.dataAllowed) {
-                debug_write("dataAllowed\n");
                 PRINTF("Data field forbidden\n");
                 return CUSTOM_FAULT;
             }
@@ -117,15 +99,12 @@ customStatus_e customProcessor(txContext_t *context) {
             dataContext.tokenContext.fieldOffset = 0;
             blockSize = 4;
         } else {
-            debug_write("fieldPos != 0\n");
             if (!N_storage.contractDetails &&
                 dataContext.tokenContext.pluginStatus <= LAT_PLUGIN_RESULT_UNSUCCESSFUL) {
                 return CUSTOM_NOT_HANDLED;
             }
             blockSize = 32 - (dataContext.tokenContext.fieldOffset % 32);
         }
-
-        debug_write("Sanity check\n");
 
         // Sanity check
         if ((context->currentFieldLength - fieldPos) < blockSize) {
@@ -152,25 +131,20 @@ customStatus_e customProcessor(txContext_t *context) {
             // Can process or display
             if (dataContext.tokenContext.pluginStatus >= LAT_PLUGIN_RESULT_SUCCESSFUL) {
                 latPluginProvideParameter_t pluginProvideParameter;
-                debug_write("lat_plugin_prepare_provide_parameter\n");
                 lat_plugin_prepare_provide_parameter(&pluginProvideParameter,
                                                      dataContext.tokenContext.data,
                                                      dataContext.tokenContext.fieldIndex * 32 + 4);
                 if (!lat_plugin_call(LAT_PLUGIN_PROVIDE_PARAMETER,
                                      (void *) &pluginProvideParameter)) {
                     PRINTF("Plugin parameter call failed\n");
-                    debug_write("CUSTOM_FAULT\n");
                     return CUSTOM_FAULT;
                 }
                 dataContext.tokenContext.fieldIndex++;
                 dataContext.tokenContext.fieldOffset = 0;
-                debug_write("CUSTOM_HANDLED\n");
                 return CUSTOM_HANDLED;
             }
 
-            debug_write("fieldPos info\n");
             if (fieldPos != 0) {
-                debug_write("fieldPos != 0\n");
                 dataContext.tokenContext.fieldIndex++;
             }
             dataContext.tokenContext.fieldOffset = 0;
@@ -178,7 +152,6 @@ customStatus_e customProcessor(txContext_t *context) {
                 array_hexstr(strings.tmp.tmp, dataContext.tokenContext.data, 4);
                 ux_flow_init(0, ux_confirm_selector_flow, NULL);
             } else {
-                debug_write("ux_confirm_parameter_flow\n");
                 uint32_t offset = 0;
                 uint32_t i;
                 snprintf(strings.tmp.tmp2,
@@ -285,7 +258,6 @@ void finalizeParsing(bool direct) {
     tokenDefinition_t *token1 = NULL, *token2 = NULL;
     bool genericUI = true;
 
-    debug_write("Verify the chain\n");
     // Verify the chain
     if (chainConfig->chainId != PLATON_MAINNET_CHAINID) {
         uint32_t id = get_chain_id();
@@ -299,7 +271,7 @@ void finalizeParsing(bool direct) {
             }
         }
     }
-    debug_write("Store the hash\n");
+
     // Store the hash
     cx_hash((cx_hash_t *) &global_sha3,
             CX_LAST,
@@ -313,7 +285,6 @@ void finalizeParsing(bool direct) {
     (dataContext.tokenContext.pluginStatus >= LAT_PLUGIN_RESULT_SUCCESSFUL)){
         genericUI = true;
         dataPresent = false;
-        debug_write("lat_plugin_prepare_finalize\n");
         lat_plugin_prepare_finalize(&pluginFinalize);
         if (!lat_plugin_call(LAT_PLUGIN_FINALIZE, (void *) &pluginFinalize)) {
             PRINTF("Plugin finalize call failed\n");
@@ -323,7 +294,6 @@ void finalizeParsing(bool direct) {
             }
         }
     }else if (dataContext.tokenContext.pluginStatus >= LAT_PLUGIN_RESULT_SUCCESSFUL) {
-        debug_write("pluginStatus\n");
         genericUI = false;
         lat_plugin_prepare_finalize(&pluginFinalize);
         if (!lat_plugin_call(LAT_PLUGIN_FINALIZE, (void *) &pluginFinalize)) {
@@ -333,8 +303,6 @@ void finalizeParsing(bool direct) {
                 return;
             }
         }
-
-        debug_write("Lookup tokens if requested\n");
 
         // Lookup tokens if requested
         latPluginProvideToken_t pluginProvideToken;
@@ -354,22 +322,6 @@ void finalizeParsing(bool direct) {
                 }
             }
 
-            tokenDefinition_t tempToken;
-
-            // {
-            //     token1 = &tempToken;
-            //     strcpy(token1->ticker, "jatel");
-            //     token1->decimals = 8;
-            //     uint8_t tempAdd[20] = {0x4A, 0x23, 0xcA, 0x00, 0x87, 0x1C, 0xF9, 0xE4, 0x0C, 0x92, 0x14, 0xe7, 0xC6, 0x48, 0xE9, 0xcB, 0xa6, 0xc0, 0x97, 0x29};
-            //     memmove(token1->address, tempAdd, 20);
-
-            // }
-
-            debug_write("lat_plugin_prepare_provide_token\n");
-            debug_write(token1->ticker);
-            debug_write("\n");
-            debug_write(token2->ticker);
-            debug_write("\n");
             lat_plugin_prepare_provide_token(&pluginProvideToken, token1, token2);
             if (lat_plugin_call(LAT_PLUGIN_PROVIDE_TOKEN, (void *) &pluginProvideToken) <=
                 LAT_PLUGIN_RESULT_UNSUCCESSFUL) {
@@ -383,7 +335,6 @@ void finalizeParsing(bool direct) {
         }
 
         if (pluginFinalize.result != LAT_PLUGIN_RESULT_FALLBACK) {
-            debug_write("pluginFinalize.result != LAT_PLUGIN_RESULT_FALLBACK\n");
             // Handle the right interface
             switch (pluginFinalize.uiType) {
                 case LAT_UI_TYPE_GENERIC:
@@ -394,7 +345,6 @@ void finalizeParsing(bool direct) {
                         pluginFinalize.numScreens + pluginProvideToken.additionalScreens;
                     break;
                 case LAT_UI_TYPE_AMOUNT_ADDRESS:
-                    debug_write("LAT_UI_TYPE_AMOUNT_ADDRESS\n");
                     genericUI = true;
                     dataPresent = false;
                     if ((pluginFinalize.amount == NULL) || (pluginFinalize.address == NULL)) {
@@ -425,7 +375,6 @@ void finalizeParsing(bool direct) {
         }
     }
 
-    debug_write("reportFinalizeError\n");
     if (dataPresent && !N_storage.dataAllowed) {
         reportFinalizeError(direct);
         if (!direct) {
@@ -433,7 +382,6 @@ void finalizeParsing(bool direct) {
         }
     }
 
-    debug_write("Prepare destination address to display\n");
     // Prepare destination address to display
     if (genericUI) {
         if (tmpContent.txContent.destinationLength != 0) {
@@ -457,7 +405,6 @@ void finalizeParsing(bool direct) {
         compareOrCopy(strings.common.fullAmount, displayBuffer, called_from_swap);
     }
 
-    debug_write("Prepare nonce to display\n");
     // Prepare nonce to display
     if (genericUI) {
         uint256_t nonce;
@@ -494,8 +441,6 @@ void finalizeParsing(bool direct) {
         }
     }
 
-    debug_write("ux_approve_tx\n");
-
     bool no_consent;
 
     no_consent = called_from_swap;
@@ -508,9 +453,7 @@ void finalizeParsing(bool direct) {
         io_seproxyhal_touch_tx_ok(NULL);
     } else {
         if (genericUI) {
-            debug_write("ux_approve_tx start\n");
             ux_approve_tx(dataPresent);
-            debug_write("ux_approve_tx end\n");
         } else {
             plugin_ui_start();
         }

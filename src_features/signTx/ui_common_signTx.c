@@ -2,19 +2,7 @@
 #include "utils.h"
 #include "ui_callbacks.h"
 
-static void debug_write(char *buf)
-{
-  asm volatile (
-     "movs r0, #0x04\n"
-     "movs r1, %0\n"
-     "svc      0xab\n"
-     :: "r"(buf) : "r0", "r1"
-  );
-}
-
 unsigned int io_seproxyhal_touch_tx_ok(__attribute__((unused)) const bagl_element_t *e) {
-    debug_write("io_seproxyhal_touch_tx_ok\n");
-
     uint8_t privateKeyData[INT256_LENGTH];
     uint8_t signature[100];
     uint8_t signatureLength;
@@ -59,10 +47,9 @@ unsigned int io_seproxyhal_touch_tx_ok(__attribute__((unused)) const bagl_elemen
     tx = 65;
     G_io_apdu_buffer[tx++] = 0x90;
     G_io_apdu_buffer[tx++] = 0x00;
-    debug_write("io_seproxyhal_touch_tx_ok end\n");
+
     // Send back the response, do not restart the event loop
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, tx);
-    debug_write("io_exchange end\n");
     if (called_from_swap) {
         os_sched_exit(0);
     }
@@ -84,7 +71,6 @@ unsigned int io_seproxyhal_touch_tx_cancel(__attribute__((unused)) const bagl_el
 }
 
 unsigned int io_seproxyhal_touch_data_ok(__attribute__((unused)) const bagl_element_t *e) {
-    debug_write("io_seproxyhal_touch_data_ok\n");
     parserStatus_e txResult = USTREAM_FINISHED;
     txResult = continueTx(&txContext);
     switch (txResult) {
