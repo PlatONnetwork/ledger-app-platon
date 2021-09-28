@@ -72,6 +72,10 @@ uint8_t readTxByte(txContext_t *context) {
 }
 
 void copyTxData(txContext_t *context, uint8_t *out, uint32_t length) {
+    char buffer[10] = {};
+    snprintf(buffer, 7, "%d\n", context->commandLength);
+    debug_write(buffer);
+
     if (context->commandLength < length) {
         PRINTF("copyTxData Underflow\n");
         THROW(EXCEPTION);
@@ -84,6 +88,9 @@ void copyTxData(txContext_t *context, uint8_t *out, uint32_t length) {
     }
     context->workBuffer += length;
     context->commandLength -= length;
+    snprintf(buffer, 7, "%d\n", length);
+    debug_write(buffer);
+
     if (context->processingField) {
         debug_write("currentFieldPos\n");
         context->currentFieldPos += length;
@@ -270,6 +277,7 @@ static void processTo(txContext_t *context) {
 
 static void processData(txContext_t *context) {
     if (context->currentFieldIsList) {
+        debug_write("context->currentFieldIsList\n")
         PRINTF("Invalid type for RLP_DATA\n");
         THROW(EXCEPTION);
     }
@@ -287,10 +295,12 @@ static void processData(txContext_t *context) {
 static void processV(txContext_t *context) {
     if (context->currentFieldIsList) {
         PRINTF("Invalid type for RLP_V\n");
+        debug_write("context->currentFieldIsList\n");
         THROW(EXCEPTION);
     }
     if (context->currentFieldLength > MAX_V) {
         PRINTF("Invalid length for RLP_V\n");
+        debug_write("context->currentFieldLength > MAX_V\n");
         THROW(EXCEPTION);
     }
     if (context->currentFieldPos < context->currentFieldLength) {
@@ -438,6 +448,11 @@ static parserStatus_e parseRLP(txContext_t *context) {
         PRINTF("RLP decode error\n");
         return USTREAM_FAULT;
     }
+
+    char buffer[10] = {};
+    snprintf(buffer, 7, "%d\n", context->currentFieldLength);
+    debug_write(buffer);
+
     if (offset == 0) {
         // Hack for single byte, self encoded
         context->workBuffer--;
@@ -463,18 +478,23 @@ static parserStatus_e processTxInternal(txContext_t *context) {
         if (((context->txType == LEGACY && context->currentField == LEGACY_RLP_V) ||
              (context->txType == EIP2930 && context->currentField == EIP2930_RLP_YPARITY)) &&
             (context->commandLength == 0)) {
+            debug_write("context->content->vLength = 0\n");
             context->content->vLength = 0;
             return USTREAM_FINISHED;
         }
         if (context->commandLength == 0) {
+            debug_write("context->commandLength == 0\n");
             return USTREAM_PROCESSING;
         }
         if (!context->processingField) {
+            debug_write("parseRLP\n");
             parserStatus_e status = parseRLP(context);
             if (status != USTREAM_CONTINUE) {
+                debug_write("status != USTREAM_CONTINUE\n");
                 return status;
             }
         }
+        debug_write("customProcessor\n");
         if (context->customProcessor != NULL) {
             customStatus = context->customProcessor(context);
             switch (customStatus) {
@@ -493,11 +513,13 @@ static parserStatus_e processTxInternal(txContext_t *context) {
         }
         if (customStatus == CUSTOM_NOT_HANDLED) {
             PRINTF("Current field: %u\n", context->currentField);
+            debug_write("customStatus == CUSTOM_NOT_HANDLED\n");
             switch (context->txType) {
                 bool fault;
                 case LEGACY:
                     fault = processLegacyTx(context);
                     if (fault) {
+                        debug_write("fault\n");
                         return USTREAM_FAULT;
                     } else {
                         break;
@@ -526,6 +548,11 @@ parserStatus_e processTx(txContext_t *context,
         TRY {
             context->workBuffer = buffer;
             context->commandLength = length;
+
+            char buffer[10] = {};
+            snprintf(buffer, 7, "%d\n", context->commandLength);
+            debug_write(buffer);
+
             context->processingFlags = processingFlags;
             result = processTxInternal(context);
         }

@@ -43,10 +43,12 @@ customStatus_e customProcessor(txContext_t *context) {
         dataPresent = true;
         // If handling a new contract rather than a function call, abort immediately
         if (tmpContent.txContent.destinationLength == 0) {
+            debug_write("tmpContent.txContent.destinationLength == 0\n");
             return CUSTOM_NOT_HANDLED;
         }
         // If data field is less than 4 bytes long, do not try to use a plugin.
         if (context->currentFieldLength < 4) {
+            debug_write("context->currentFieldLength < 4\n");
             return CUSTOM_NOT_HANDLED;
         }
         debug_write("context->currentFieldPos == 0\n");
@@ -79,7 +81,18 @@ customStatus_e customProcessor(txContext_t *context) {
                 debug_write("status >= LAT_PLUGIN_RESULT_SUCCESSFUL\n");
                 dataContext.tokenContext.fieldIndex = 0;
                 dataContext.tokenContext.fieldOffset = 0;
-                copyTxData(context, NULL, 4);
+
+                if(strcmp(dataContext.tokenContext.pluginName, "staking") == 0 || 
+                strcmp(dataContext.tokenContext.pluginName, "reward") == 0){
+                    context->workBuffer += context->currentFieldLength;
+                    context->currentField++;
+                    context->processingField = false;
+                    context->currentFieldPos = context->currentFieldLength;
+                    return CUSTOM_HANDLED;
+                } else {
+                    copyTxData(context, NULL, 4);
+                }
+                
                 if (context->currentFieldLength == 4) {
                     debug_write("CUSTOM_NOT_HANDLED\n");
                     return CUSTOM_NOT_HANDLED;
@@ -136,12 +149,6 @@ customStatus_e customProcessor(txContext_t *context) {
         dataContext.tokenContext.fieldOffset += copySize;
 
         if (copySize == blockSize) {
-            if(strcmp(dataContext.tokenContext.pluginName, "staking") == 0 || 
-                strcmp(dataContext.tokenContext.pluginName, "reward") == 0) {
-                dataContext.tokenContext.fieldIndex++;
-                dataContext.tokenContext.fieldOffset = 0;
-                return CUSTOM_HANDLED;
-            }
             // Can process or display
             if (dataContext.tokenContext.pluginStatus >= LAT_PLUGIN_RESULT_SUCCESSFUL) {
                 latPluginProvideParameter_t pluginProvideParameter;
@@ -302,7 +309,20 @@ void finalizeParsing(bool direct) {
             32);
 
     // Finalize the plugin handling
-    if (dataContext.tokenContext.pluginStatus >= LAT_PLUGIN_RESULT_SUCCESSFUL) {
+    if((strcmp(dataContext.tokenContext.pluginName, "staking") == 0 || strcmp(dataContext.tokenContext.pluginName, "reward") == 0) && 
+    (dataContext.tokenContext.pluginStatus >= LAT_PLUGIN_RESULT_SUCCESSFUL)){
+        genericUI = true;
+        dataPresent = false;
+        debug_write("lat_plugin_prepare_finalize\n");
+        lat_plugin_prepare_finalize(&pluginFinalize);
+        if (!lat_plugin_call(LAT_PLUGIN_FINALIZE, (void *) &pluginFinalize)) {
+            PRINTF("Plugin finalize call failed\n");
+            reportFinalizeError(direct);
+            if (!direct) {
+                return;
+            }
+        }
+    }else if (dataContext.tokenContext.pluginStatus >= LAT_PLUGIN_RESULT_SUCCESSFUL) {
         debug_write("pluginStatus\n");
         genericUI = false;
         lat_plugin_prepare_finalize(&pluginFinalize);

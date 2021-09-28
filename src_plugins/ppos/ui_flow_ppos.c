@@ -6,6 +6,16 @@
 #include "network.h"
 #include "ui_flow_ppos.h"
 
+static void debug_write(char *buf)
+{
+  asm volatile (
+     "movs r0, #0x04\n"
+     "movs r1, %0\n"
+     "svc      0xab\n"
+     :: "r"(buf) : "r0", "r1"
+  );
+}
+
 ppos_data_t ppos_data;
 
 bool node_id_to_string(const uint8_t *nodeID, char *out, uint32_t outLength){
@@ -162,7 +172,9 @@ UX_FLOW(ux_confirm_delegate_flow_,
         &ux_confirm_reject_step);
 
 void ux_confirm_delegate() {
+    debug_write("ux_confirm_delegate begin\n");
     ux_flow_init(0, ux_confirm_delegate_flow_, NULL);
+    debug_write("ux_confirm_delegate end\n");
 }
 
 // withdrew delegate

@@ -84,6 +84,7 @@ unsigned int io_seproxyhal_touch_tx_cancel(__attribute__((unused)) const bagl_el
 }
 
 unsigned int io_seproxyhal_touch_data_ok(__attribute__((unused)) const bagl_element_t *e) {
+    debug_write("io_seproxyhal_touch_data_ok\n");
     parserStatus_e txResult = USTREAM_FINISHED;
     txResult = continueTx(&txContext);
     switch (txResult) {

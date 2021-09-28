@@ -13,6 +13,10 @@ static void debug_write(char *buf)
   );
 }
 
+#define CHUNKSIZE 150
+uint8_t all_tx_data[512];
+uint16_t all_tx_data_offset;
+
 void handleSign(uint8_t p1,
                 uint8_t p2,
                 uint8_t *workBuffer,
@@ -22,6 +26,28 @@ void handleSign(uint8_t p1,
     UNUSED(tx);
     parserStatus_e txResult;
     uint32_t i;
+
+    char buffer[10] = {};
+    snprintf(buffer, 7, "%d\n", dataLength);
+    debug_write(buffer);
+
+    if (p1 == P1_FIRST) {
+        all_tx_data_offset = 0;
+    }
+
+    memmove(all_tx_data+all_tx_data_offset, workBuffer, dataLength);
+    all_tx_data_offset += dataLength;
+
+    if(CHUNKSIZE == dataLength) {
+        G_io_apdu_buffer[(*tx)++] = 0x90;
+        G_io_apdu_buffer[(*tx)++] = 0x00;
+        return;
+    }
+
+    workBuffer = all_tx_data;
+    dataLength = all_tx_data_offset;
+    p1 = P1_FIRST;
+
     if (p1 == P1_FIRST) {
         if (dataLength < 1) {
             PRINTF("Invalid data\n");
