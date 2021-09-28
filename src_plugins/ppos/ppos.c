@@ -1,5 +1,6 @@
 #include "ppos.h"
 #include "shared_context.h"
+#include "utils.h"
 
 ppos_data_t ppos_data;
 
@@ -57,7 +58,7 @@ uint16_t get_func_type(const uint8_t *data, uint32_t length){
 }
 
 void get_amount(uint8_t *data, uint32_t length){
-    amountToString(data, length, 18, "Lat", strings.common.pposAmount, sizeof(strings.common.pposAmount));
+    amountToString(data, length, 18, CHAINID_COINNAME, strings.common.pposAmount, sizeof(strings.common.pposAmount));
 }
 
 bool node_id_to_string(const uint8_t *nodeID, char *out, uint32_t outLength){

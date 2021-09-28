@@ -66,6 +66,7 @@ void reset_app_context() {
     memset((uint8_t *) &tmpCtx, 0, sizeof(tmpCtx));
     memset((uint8_t *) &txContext, 0, sizeof(txContext));
     memset((uint8_t *) &tmpContent, 0, sizeof(tmpContent));
+    memset((uint8_t *) &strings, 0, sizeof(strings_t));
 }
 
 void ui_idle(void) {

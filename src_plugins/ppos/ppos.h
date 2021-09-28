@@ -2,6 +2,7 @@
 #define _PPOS_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 typedef struct ppos_data_t {
     uint8_t *begin;
     uint8_t *end;
