@@ -69,6 +69,7 @@ customStatus_e customProcessor(txContext_t *context) {
 
                 if(strcmp(dataContext.tokenContext.pluginName, "staking") == 0 || 
                 strcmp(dataContext.tokenContext.pluginName, "reward") == 0){
+                    cx_hash((cx_hash_t *) context->sha3, 0, context->workBuffer, context->currentFieldLength, NULL, 0);
                     context->workBuffer += context->currentFieldLength;
                     context->currentField++;
                     context->processingField = false;
