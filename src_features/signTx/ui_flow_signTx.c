@@ -4,6 +4,7 @@
 #include "utils.h"
 #include "feature_signTx.h"
 #include "network.h"
+#include "ppos.h"
 
 // clang-format off
 UX_STEP_NOCB(
@@ -201,13 +202,19 @@ void ux_approve_tx(bool dataPresent) {
     ux_approval_tx_flow_[step++] = &ux_approval_fees_step;
 
     if(strings.common.bPpos){
-      strings.common.bPpos = false;
       ux_approval_tx_flow_[step++] = &ux_approval_ppos_type_step;
-      ux_approval_tx_flow_[step++] = &ux_confirm_nodeID_step;
-      if(strings.common.bPposAmount) {
-        ux_approval_tx_flow_[step++] = &ux_approval_ppos_amount_step;
-        strings.common.bPposAmount = false;
+
+      if(strings.common.display_content & DISPLAYNODEID) {
+        ux_approval_tx_flow_[step++] = &ux_confirm_nodeID_step;
       }
+      
+      if(strings.common.display_content & DISPLAYAMOUNT) {
+        ux_approval_tx_flow_[step++] = &ux_approval_ppos_amount_step;
+      }
+
+      strings.common.bPpos = false;
+      strings.common.display_content = DISPLAYNULL;
+
     }
     ux_approval_tx_flow_[step++] = &ux_approval_accept_step;
     ux_approval_tx_flow_[step++] = &ux_approval_reject_step;

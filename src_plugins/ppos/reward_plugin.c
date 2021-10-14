@@ -10,23 +10,6 @@
 #define GETDELEGATEREWARDPARANUM 4
 
 void get_delegate_reward(uint8_t *data){
-    int node_id_step = 1;
-    uint8_t node_id[64] = {};
-    int amount_step = 3;
-
-    for(int i = 1; i < GETDELEGATEREWARDPARANUM; ++i){
-        uint64_t data_length = get_length(&data);
-        data_length = get_length(&data);
-        if(node_id_step == i){
-            memcpy(node_id, data, data_length);
-        }
-        if(amount_step == i){
-            get_amount(data, data_length);
-        }
-        data += data_length;
-    } 
-
-    node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
     strcpy(strings.common.ppos_type, "withdrew delegate");
 }
 
@@ -38,7 +21,6 @@ static void parse_reward_info(){
     uint16_t func_type = get_func_type(data, data_length);
     data += data_length;
     strings.common.bPpos = true;
-    strings.common.bPposAmount = true;
     switch(func_type){
         case GETDELEGATEREWARD:
             get_delegate_reward(data);

@@ -214,7 +214,7 @@ lat_plugin_result_t lat_plugin_call(int method, void *parameter) {
         staking_plugin_call(method, parameter);
     }else if(strcmp(alias, "reward") == 0){
         internalPlugin = 1;
-        // reward_plugin_call(method, parameter);
+        reward_plugin_call(method, parameter);
     } else {
         for (i = 0;; i++) {
             if (INTERNAL_LAT_PLUGINS[i].alias[0] == 0) {

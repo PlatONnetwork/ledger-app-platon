@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
+#define DISPLAYNULL 0x00
+#define DISPLAYNODEID 0x01
+#define DISPLAYAMOUNT 0x02
 typedef struct ppos_data_t {
     uint8_t *begin;
     uint8_t *end;
