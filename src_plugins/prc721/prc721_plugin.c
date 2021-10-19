@@ -5,12 +5,13 @@
 #include "latUtils.h"
 #include "utils.h"
 
+typedef enum { PRC721_TRANSFERFROM = 0 } prc721Selector_t;
+
 typedef struct prc721_parameters_t {
     uint8_t selectorIndex;
     uint8_t address[ADDRESS_LENGTH];
+    uint8_t to_address[ADDRESS_LENGTH];
     uint8_t tokenId[INT256_LENGTH];
-    // tokenDefinition_t *tokenSelf;
-    // tokenDefinition_t *tokenAddress;
 } prc721_parameters_t;
 
 bool prc721_plugin_available_check() {
@@ -40,8 +41,8 @@ void prc721_plugin_call(int message, void *parameters) {
                     PRINTF("Unknown prc721 selector %.*H\n", SELECTOR_SIZE, msg->selector);
                     break;
                 }
-                if (msg->dataSize != 4 + 32 + 32) {
-                    PRINTF("Invalid prc721 approval data size %d\n", msg->dataSize);
+                if (msg->dataSize != 4 + 32 + 32 + 32) {
+                    PRINTF("Invalid erc721 approval data size %d\n", msg->dataSize);
                     break;
                 }
                 PRINTF("prc721 plugin init\n");
@@ -56,19 +57,25 @@ void prc721_plugin_call(int message, void *parameters) {
                    msg->parameterOffset,
                    32,
                    msg->parameter);
+
             switch (msg->parameterOffset) {
-                case 4:
-                    memmove(context->address, msg->parameter + 32 - 20, 20);
-                    msg->result = LAT_PLUGIN_RESULT_OK;
-                    break;
-                case 4 + 32:
-                    memmove(context->tokenId, msg->parameter, 32);
-                    msg->result = LAT_PLUGIN_RESULT_OK;
-                    break;
-                default:
-                    PRINTF("Unhandled parameter offset\n");
-                    break;
+            case 4:
+                memmove(context->address, msg->parameter + 32 - 20, 20);
+                msg->result = LAT_PLUGIN_RESULT_OK;
+                break;
+            case 4 + 32:
+                memmove(context->to_address, msg->parameter + 32 - 20, 20);
+                msg->result = LAT_PLUGIN_RESULT_OK;
+                break;
+            case 4 + 32 + 32:
+                memmove(context->tokenId, msg->parameter, 32);
+                msg->result = LAT_PLUGIN_RESULT_OK;
+                break;
+            default:
+                PRINTF("Unhandled parameter offset\n");
+                break;
             }
+
         } break;
 
         case LAT_PLUGIN_FINALIZE: {
@@ -77,7 +84,7 @@ void prc721_plugin_call(int message, void *parameters) {
             PRINTF("prc721 plugin finalize\n");
             msg->tokenLookup1 = msg->pluginSharedRO->txContent->destination;
             msg->tokenLookup2 = context->address;
-            msg->numScreens = 3;
+            msg->numScreens = 4;
             msg->uiType = LAT_UI_TYPE_GENERIC;
             msg->result = LAT_PLUGIN_RESULT_OK;
         } break;
@@ -94,9 +101,56 @@ void prc721_plugin_call(int message, void *parameters) {
 
         case LAT_PLUGIN_QUERY_CONTRACT_ID: {
             latQueryContractID_t *msg = (latQueryContractID_t *) parameters;
-            strcpy(msg->name, "Allowance");
-            strcpy(msg->version, "");
+            strcpy(msg->name, "Type");
+            strcpy(msg->version, "prc721 transferFrom");
             msg->result = LAT_PLUGIN_RESULT_OK;
+        } break;
+
+        case LAT_PLUGIN_QUERY_CONTRACT_UI: {
+            latQueryContractUI_t *msg = (latQueryContractUI_t *) parameters;
+            prc721_parameters_t *context = (prc721_parameters_t *) msg->pluginContext;
+            switch (msg->screenIndex) {
+                case 0:
+                    strlcpy(msg->title, "Contract Address", msg->titleLength);
+                    getLatAddressStringFromBinary(tmpContent.txContent.destination,
+                                             (uint8_t *)msg->msg,
+                                             &global_sha3,
+                                             chainConfig);
+                    msg->result = LAT_PLUGIN_RESULT_OK;
+                    break;
+
+                case 1:
+                    strlcpy(msg->title, "From Address", msg->titleLength);
+                    getLatAddressStringFromBinary(context->address,
+                                             (uint8_t *)msg->msg,
+                                             &global_sha3,
+                                             chainConfig);
+                    msg->result = LAT_PLUGIN_RESULT_OK;
+                    break;
+
+                case 2:
+                    strlcpy(msg->title, "To Address", msg->titleLength);
+                    getLatAddressStringFromBinary(context->to_address,
+                                             (uint8_t *)msg->msg,
+                                             &global_sha3,
+                                             chainConfig);
+                    msg->result = LAT_PLUGIN_RESULT_OK;
+                    break;
+
+                case 3:
+                    strlcpy(msg->title, "TokenID", msg->titleLength);
+                    amountToString(context->tokenId, sizeof(context->tokenId),
+                                       0,
+                                       "",
+                                       msg->msg,
+                                       100);
+                    // snprintf(msg->msg, 70, "0x%.*H", 32, context->tokenId);
+                    msg->result = LAT_PLUGIN_RESULT_OK;
+                    break;
+
+                default:
+                    break;
+            }
         } break;
 
         default:

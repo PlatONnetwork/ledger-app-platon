@@ -3,6 +3,7 @@
 #include "lat_plugin_internal.h"
 #include "shared_context.h"
 
+
 void staking_plugin_call(int message, void *parameters);
 void reward_plugin_call(int message, void *parameters);
 

@@ -169,10 +169,8 @@ void prc20_plugin_call(int message, void *parameters) {
                         strcpy(msg->msg, (char *) context->contract_name);
                     } else {
                         strcpy(msg->title, "Address");
-                        msg->msg[0] = '0';
-                        msg->msg[1] = 'x';
                         getLatAddressStringFromBinary(context->destinationAddress,
-                                                      (uint8_t *) msg->msg + 2,
+                                                      (uint8_t *) msg->msg,
                                                       msg->pluginSharedRW->sha3,
                                                       chainConfig);
                     }
