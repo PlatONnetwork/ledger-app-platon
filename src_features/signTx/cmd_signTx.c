@@ -3,6 +3,10 @@
 #include "ui_flow.h"
 #include "feature_signTx.h"
 
+#define CHUNKSIZE 150
+uint8_t all_tx_data[512];
+uint16_t all_tx_data_offset;
+
 void handleSign(uint8_t p1,
                 uint8_t p2,
                 uint8_t *workBuffer,
@@ -12,6 +16,24 @@ void handleSign(uint8_t p1,
     UNUSED(tx);
     parserStatus_e txResult;
     uint32_t i;
+
+    if (p1 == P1_FIRST) {
+        all_tx_data_offset = 0;
+    }
+
+    memmove(all_tx_data+all_tx_data_offset, workBuffer, dataLength);
+    all_tx_data_offset += dataLength;
+
+    if(CHUNKSIZE == dataLength) {
+        G_io_apdu_buffer[(*tx)++] = 0x90;
+        G_io_apdu_buffer[(*tx)++] = 0x00;
+        return;
+    }
+
+    workBuffer = all_tx_data;
+    dataLength = all_tx_data_offset;
+    p1 = P1_FIRST;
+
     if (p1 == P1_FIRST) {
         if (dataLength < 1) {
             PRINTF("Invalid data\n");
@@ -71,6 +93,7 @@ void handleSign(uint8_t p1,
         PRINTF("Parser not initialized\n");
         THROW(0x6985);
     }
+
     txResult = processTx(&txContext,
                          workBuffer,
                          dataLength,
@@ -94,4 +117,5 @@ void handleSign(uint8_t p1,
     }
 
     *flags |= IO_ASYNCH_REPLY;
+
 }

@@ -24,15 +24,15 @@ In this model, the plugin first reports a number of screens (2 lines of text, th
 
 The Platon application will request each screen to be displayed to the plugin and let the user browse through them.
 
-The first screen being displayed is always a description of the plugin being used (name and version reported by the plugin), and the last screens include the transaction fees in ETH and a confirmation prompt
+The first screen being displayed is always a description of the plugin being used (name and version reported by the plugin), and the last screens include the transaction fees in platon and a confirmation prompt
 
 ### Code flow
 
-The plugin interfacing logic is described in _src/eth_plugin_interface.h_
+The plugin interfacing logic is described in _src/lat_plugin_interface.h_
 
-The plugin common dispatcher is found in _src/eth_plugin_handler.c_
+The plugin common dispatcher is found in _src/lat_plugin_handler.c_
 
-The plugin generic UI dispatcher is found in _src/eth_plugin_ui.c_
+The plugin generic UI dispatcher is found in _src/lat_plugin_ui.c_
 
 Sample internal plugins are provided in _src_plugins/_
 
@@ -40,7 +40,7 @@ Sample internal plugins are provided in _src_plugins/_
 
 ### Creating an internal plugin
 
-Internal plugins are triggered on specific selectors. You can modify _src/eth_plugin_internal.c_ to add your mapping.
+Internal plugins are triggered on specific selectors. You can modify _src/lat_plugin_internal.c_ to add your mapping.
 
 Other specific mappings can be also added by modifying the common dispatcher
 
@@ -204,7 +204,7 @@ The following return codes are expected, any other will abort the signing proces
 
 ```c
 
-typedef struct ethQueryContractID_t {
+typedef struct latQueryContractID_t {
 
   latPluginSharedRW_t *pluginSharedRW;
   latPluginSharedRO_t *pluginSharedRO;
@@ -217,7 +217,7 @@ typedef struct ethQueryContractID_t {
 
   uint8_t result; 
 
-} ethQueryContractID_t;
+} latQueryContractID_t;
 
 ```
 
@@ -236,7 +236,7 @@ The following return codes are expected, any other will abort the signing proces
 
 ```c
 
-typedef struct ethQueryContractUI_t {
+typedef struct latQueryContractUI_t {
 
   latPluginSharedRW_t *pluginSharedRW;
   latPluginSharedRO_t *pluginSharedRO;
@@ -249,7 +249,7 @@ typedef struct ethQueryContractUI_t {
 
   uint8_t result;
 
-} ethQueryContractUI_t;
+} latQueryContractUI_t;
 
 ```
 

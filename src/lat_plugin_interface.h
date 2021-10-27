@@ -141,7 +141,7 @@ typedef struct latPluginProvideToken_t {
 
 // This is always called on the non aliased contract
 
-typedef struct ethQueryContractID_t {
+typedef struct latQueryContractID_t {
     latPluginSharedRW_t *pluginSharedRW;
     latPluginSharedRO_t *pluginSharedRO;
     uint8_t *pluginContext;
@@ -153,11 +153,11 @@ typedef struct ethQueryContractID_t {
 
     uint8_t result;
 
-} ethQueryContractID_t;
+} latQueryContractID_t;
 
 // Query Contract UI
 
-typedef struct ethQueryContractUI_t {
+typedef struct latQueryContractUI_t {
     latPluginSharedRW_t *pluginSharedRW;
     latPluginSharedRO_t *pluginSharedRO;
     uint8_t *pluginContext;
@@ -169,6 +169,6 @@ typedef struct ethQueryContractUI_t {
 
     uint8_t result;
 
-} ethQueryContractUI_t;
+} latQueryContractUI_t;
 
 #endif

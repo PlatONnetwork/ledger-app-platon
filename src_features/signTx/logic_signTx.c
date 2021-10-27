@@ -39,6 +39,7 @@ customStatus_e customProcessor(txContext_t *context) {
         if (context->currentFieldLength < 4) {
             return CUSTOM_NOT_HANDLED;
         }
+
         if (context->currentFieldPos == 0) {
             latPluginInitContract_t pluginInit;
             // If handling the beginning of the data field, assume that the function selector is
@@ -50,6 +51,7 @@ customStatus_e customProcessor(txContext_t *context) {
             dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_UNAVAILABLE;
             // If contract debugging mode is activated, do not go through the plugin activation
             // as they wouldn't be displayed if the plugin consumes all data but fallbacks
+        
             if (!N_storage.contractDetails) {
                 lat_plugin_prepare_init(&pluginInit,
                                         context->workBuffer,
@@ -64,12 +66,25 @@ customStatus_e customProcessor(txContext_t *context) {
             } else if (status >= LAT_PLUGIN_RESULT_SUCCESSFUL) {
                 dataContext.tokenContext.fieldIndex = 0;
                 dataContext.tokenContext.fieldOffset = 0;
-                copyTxData(context, NULL, 4);
+
+                if(strcmp(dataContext.tokenContext.pluginName, "staking") == 0 || 
+                strcmp(dataContext.tokenContext.pluginName, "reward") == 0){
+                    cx_hash((cx_hash_t *) context->sha3, 0, context->workBuffer, context->currentFieldLength, NULL, 0);
+                    context->workBuffer += context->currentFieldLength;
+                    context->currentField++;
+                    context->processingField = false;
+                    context->currentFieldPos = context->currentFieldLength;
+                    return CUSTOM_HANDLED;
+                } else {
+                    copyTxData(context, NULL, 4);
+                }
+                
                 if (context->currentFieldLength == 4) {
                     return CUSTOM_NOT_HANDLED;
                 }
             }
         }
+
         uint32_t blockSize;
         uint32_t copySize;
         uint32_t fieldPos = context->currentFieldPos;
@@ -257,6 +272,7 @@ void finalizeParsing(bool direct) {
             }
         }
     }
+
     // Store the hash
     cx_hash((cx_hash_t *) &global_sha3,
             CX_LAST,
@@ -266,7 +282,19 @@ void finalizeParsing(bool direct) {
             32);
 
     // Finalize the plugin handling
-    if (dataContext.tokenContext.pluginStatus >= LAT_PLUGIN_RESULT_SUCCESSFUL) {
+    if((strcmp(dataContext.tokenContext.pluginName, "staking") == 0 || strcmp(dataContext.tokenContext.pluginName, "reward") == 0) && 
+    (dataContext.tokenContext.pluginStatus >= LAT_PLUGIN_RESULT_SUCCESSFUL)){
+        genericUI = true;
+        dataPresent = false;
+        lat_plugin_prepare_finalize(&pluginFinalize);
+        if (!lat_plugin_call(LAT_PLUGIN_FINALIZE, (void *) &pluginFinalize)) {
+            PRINTF("Plugin finalize call failed\n");
+            reportFinalizeError(direct);
+            if (!direct) {
+                return;
+            }
+        }
+    }else if (dataContext.tokenContext.pluginStatus >= LAT_PLUGIN_RESULT_SUCCESSFUL) {
         genericUI = false;
         lat_plugin_prepare_finalize(&pluginFinalize);
         if (!lat_plugin_call(LAT_PLUGIN_FINALIZE, (void *) &pluginFinalize)) {
@@ -276,6 +304,7 @@ void finalizeParsing(bool direct) {
                 return;
             }
         }
+
         // Lookup tokens if requested
         latPluginProvideToken_t pluginProvideToken;
         if ((pluginFinalize.tokenLookup1 != NULL) || (pluginFinalize.tokenLookup2 != NULL)) {
@@ -293,6 +322,7 @@ void finalizeParsing(bool direct) {
                     PRINTF("Token2 ticker: %s\n", token2->ticker);
                 }
             }
+
             lat_plugin_prepare_provide_token(&pluginProvideToken, token1, token2);
             if (lat_plugin_call(LAT_PLUGIN_PROVIDE_TOKEN, (void *) &pluginProvideToken) <=
                 LAT_PLUGIN_RESULT_UNSUCCESSFUL) {
@@ -304,6 +334,7 @@ void finalizeParsing(bool direct) {
             }
             pluginFinalize.result = pluginProvideToken.result;
         }
+
         if (pluginFinalize.result != LAT_PLUGIN_RESULT_FALLBACK) {
             // Handle the right interface
             switch (pluginFinalize.uiType) {
@@ -351,6 +382,7 @@ void finalizeParsing(bool direct) {
             return;
         }
     }
+
     // Prepare destination address to display
     if (genericUI) {
         if (tmpContent.txContent.destinationLength != 0) {
@@ -373,6 +405,7 @@ void finalizeParsing(bool direct) {
                        sizeof(displayBuffer));
         compareOrCopy(strings.common.fullAmount, displayBuffer, called_from_swap);
     }
+
     // Prepare nonce to display
     if (genericUI) {
         uint256_t nonce;

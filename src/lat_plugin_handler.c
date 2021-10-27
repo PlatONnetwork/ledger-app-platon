@@ -3,6 +3,10 @@
 #include "lat_plugin_internal.h"
 #include "shared_context.h"
 
+
+void staking_plugin_call(int message, void *parameters);
+void reward_plugin_call(int message, void *parameters);
+
 void lat_plugin_prepare_init(latPluginInitContract_t *init, uint8_t *selector, uint32_t dataSize) {
     memset((uint8_t *) init, 0, sizeof(latPluginInitContract_t));
     init->selector = selector;
@@ -29,25 +33,25 @@ void lat_plugin_prepare_provide_token(latPluginProvideToken_t *provideToken,
     provideToken->token2 = token2;
 }
 
-void lat_plugin_prepare_query_contract_ID(ethQueryContractID_t *queryContractID,
+void lat_plugin_prepare_query_contract_ID(latQueryContractID_t *queryContractID,
                                           char *name,
                                           uint32_t nameLength,
                                           char *version,
                                           uint32_t versionLength) {
-    memset((uint8_t *) queryContractID, 0, sizeof(ethQueryContractID_t));
+    memset((uint8_t *) queryContractID, 0, sizeof(latQueryContractID_t));
     queryContractID->name = name;
     queryContractID->nameLength = nameLength;
     queryContractID->version = version;
     queryContractID->versionLength = versionLength;
 }
 
-void lat_plugin_prepare_query_contract_UI(ethQueryContractUI_t *queryContractUI,
+void lat_plugin_prepare_query_contract_UI(latQueryContractUI_t *queryContractUI,
                                           uint8_t screenIndex,
                                           char *title,
                                           uint32_t titleLength,
                                           char *msg,
                                           uint32_t msgLength) {
-    memset((uint8_t *) queryContractUI, 0, sizeof(ethQueryContractUI_t));
+    memset((uint8_t *) queryContractUI, 0, sizeof(latQueryContractUI_t));
     queryContractUI->screenIndex = screenIndex;
     queryContractUI->title = title;
     queryContractUI->titleLength = titleLength;
@@ -78,22 +82,32 @@ lat_plugin_result_t lat_plugin_perform_init(uint8_t *contractAddress,
         dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_OK;
         contractAddress = NULL;
     } else {
-        // Search internal plugin list
-        for (i = 0;; i++) {
-            uint8_t j;
-            selectors = (const uint8_t **) PIC(INTERNAL_LAT_PLUGINS[i].selectors);
-            if (selectors == NULL) {
-                break;
-            }
-            for (j = 0; ((j < INTERNAL_LAT_PLUGINS[i].num_selectors) && (contractAddress != NULL));
-                 j++) {
-                if (memcmp(init->selector, (const void *) PIC(selectors[j]), SELECTOR_SIZE) == 0) {
-                    if ((INTERNAL_LAT_PLUGINS[i].availableCheck == NULL) ||
-                        ((PluginAvailableCheck) PIC(INTERNAL_LAT_PLUGINS[i].availableCheck))()) {
-                        strcpy(dataContext.tokenContext.pluginName, INTERNAL_LAT_PLUGINS[i].alias);
-                        dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_OK;
-                        contractAddress = NULL;
-                        break;
+        if (memcmp(contractAddress, (const void *) PIC(STAKINGCONTRACTADDRESS), 20) == 0){          // 经济模型处理
+            strcpy(dataContext.tokenContext.pluginName, "staking");
+            dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_OK;
+            contractAddress = NULL;
+        } else if (memcmp(contractAddress, (const void *) PIC(REWARDCONTRACTADDRESS), 20) == 0){    // 领取奖励
+            strcpy(dataContext.tokenContext.pluginName, "reward");
+            dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_OK;
+            contractAddress = NULL;
+        } else {
+            // Search internal plugin list
+            for (i = 0;; i++) {
+                uint8_t j;
+                selectors = (const uint8_t **) PIC(INTERNAL_LAT_PLUGINS[i].selectors);
+                if (selectors == NULL) {
+                    break;
+                }
+                for (j = 0; ((j < INTERNAL_LAT_PLUGINS[i].num_selectors) && (contractAddress != NULL));
+                    j++) {
+                    if (memcmp(init->selector, (const void *) PIC(selectors[j]), SELECTOR_SIZE) == 0) {
+                        if ((INTERNAL_LAT_PLUGINS[i].availableCheck == NULL) ||
+                            ((PluginAvailableCheck) PIC(INTERNAL_LAT_PLUGINS[i].availableCheck))()) {
+                            strcpy(dataContext.tokenContext.pluginName, INTERNAL_LAT_PLUGINS[i].alias);
+                            dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_OK;
+                            contractAddress = NULL;
+                            break;
+                        }
                     }
                 }
             }
@@ -178,16 +192,16 @@ lat_plugin_result_t lat_plugin_call(int method, void *parameter) {
                 (uint8_t *) &dataContext.tokenContext.pluginContext;
             break;
         case LAT_PLUGIN_QUERY_CONTRACT_ID:
-            ((ethQueryContractID_t *) parameter)->result = LAT_PLUGIN_RESULT_UNAVAILABLE;
-            ((ethQueryContractID_t *) parameter)->pluginSharedRW = &pluginRW;
-            ((ethQueryContractID_t *) parameter)->pluginSharedRO = &pluginRO;
-            ((ethQueryContractID_t *) parameter)->pluginContext =
+            ((latQueryContractID_t *) parameter)->result = LAT_PLUGIN_RESULT_UNAVAILABLE;
+            ((latQueryContractID_t *) parameter)->pluginSharedRW = &pluginRW;
+            ((latQueryContractID_t *) parameter)->pluginSharedRO = &pluginRO;
+            ((latQueryContractID_t *) parameter)->pluginContext =
                 (uint8_t *) &dataContext.tokenContext.pluginContext;
             break;
         case LAT_PLUGIN_QUERY_CONTRACT_UI:
-            ((ethQueryContractUI_t *) parameter)->pluginSharedRW = &pluginRW;
-            ((ethQueryContractUI_t *) parameter)->pluginSharedRO = &pluginRO;
-            ((ethQueryContractUI_t *) parameter)->pluginContext =
+            ((latQueryContractUI_t *) parameter)->pluginSharedRW = &pluginRW;
+            ((latQueryContractUI_t *) parameter)->pluginSharedRO = &pluginRO;
+            ((latQueryContractUI_t *) parameter)->pluginContext =
                 (uint8_t *) &dataContext.tokenContext.pluginContext;
             break;
         default:
@@ -196,15 +210,22 @@ lat_plugin_result_t lat_plugin_call(int method, void *parameter) {
     }
 
     // Perform the call
-
-    for (i = 0;; i++) {
-        if (INTERNAL_LAT_PLUGINS[i].alias[0] == 0) {
-            break;
-        }
-        if (strcmp(alias, INTERNAL_LAT_PLUGINS[i].alias) == 0) {
-            internalPlugin = 1;
-            ((PluginCall) PIC(INTERNAL_LAT_PLUGINS[i].impl))(method, parameter);
-            break;
+    if(strcmp(alias, "staking") == 0){
+        internalPlugin = 1;
+        staking_plugin_call(method, parameter);
+    }else if(strcmp(alias, "reward") == 0){
+        internalPlugin = 1;
+        reward_plugin_call(method, parameter);
+    } else {
+        for (i = 0;; i++) {
+            if (INTERNAL_LAT_PLUGINS[i].alias[0] == 0) {
+                break;
+            }
+            if (strcmp(alias, INTERNAL_LAT_PLUGINS[i].alias) == 0) {
+                internalPlugin = 1;
+                ((PluginCall) PIC(INTERNAL_LAT_PLUGINS[i].impl))(method, parameter);
+                break;
+            }
         }
     }
 
@@ -274,12 +295,12 @@ lat_plugin_result_t lat_plugin_call(int method, void *parameter) {
             }
             break;
         case LAT_PLUGIN_QUERY_CONTRACT_ID:
-            if (((ethQueryContractID_t *) parameter)->result <= LAT_PLUGIN_RESULT_UNSUCCESSFUL) {
+            if (((latQueryContractID_t *) parameter)->result <= LAT_PLUGIN_RESULT_UNSUCCESSFUL) {
                 return LAT_PLUGIN_RESULT_UNAVAILABLE;
             }
             break;
         case LAT_PLUGIN_QUERY_CONTRACT_UI:
-            if (((ethQueryContractUI_t *) parameter)->result <= LAT_PLUGIN_RESULT_OK) {
+            if (((latQueryContractUI_t *) parameter)->result <= LAT_PLUGIN_RESULT_OK) {
                 return LAT_PLUGIN_RESULT_UNAVAILABLE;
             }
             break;

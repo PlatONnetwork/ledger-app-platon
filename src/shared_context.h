@@ -80,18 +80,10 @@ typedef struct messageSigningContext_t {
     uint32_t remainingLength;
 } messageSigningContext_t;
 
-typedef struct messageSigningContext712_t {
-    uint8_t pathLength;
-    uint32_t bip32Path[MAX_BIP32_PATH];
-    uint8_t domainHash[32];
-    uint8_t messageHash[32];
-} messageSigningContext712_t;
-
 typedef union {
     publicKeyContext_t publicKeyContext;
     transactionContext_t transactionContext;
     messageSigningContext_t messageSigningContext;
-    messageSigningContext712_t messageSigningContext712;
 } tmpCtx_t;
 
 typedef union {
@@ -113,6 +105,7 @@ typedef enum {
 } contract_call_t;
 
 #define NETWORK_NAME_MAX_SIZE 12
+#define PPOS_TYPE_MAX_SIZE 20
 
 typedef struct txStringProperties_t {
     char fullAddress[43];
@@ -120,6 +113,11 @@ typedef struct txStringProperties_t {
     char maxFee[50];
     char nonce[8];  // 10M tx per account ought to be enough for everybody
     char network_name[NETWORK_NAME_MAX_SIZE];
+    bool bPpos;
+    uint8_t display_content;
+    char ppos_type[PPOS_TYPE_MAX_SIZE];
+    char nodeID[150];
+    char pposAmount[50];
 } txStringProperties_t;
 
 #define SHARED_CTX_FIELD_1_SIZE 100

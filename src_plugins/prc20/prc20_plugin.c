@@ -52,7 +52,7 @@ void prc20_plugin_call(int message, void *parameters) {
         case LAT_PLUGIN_INIT_CONTRACT: {
             latPluginInitContract_t *msg = (latPluginInitContract_t *) parameters;
             prc20_parameters_t *context = (prc20_parameters_t *) msg->pluginContext;
-            // enforce that ETH amount should be 0
+            // enforce that LAT amount should be 0
             if (!allzeroes(msg->pluginSharedRO->txContent->value.value, 32)) {
                 PRINTF("Err: Transaction amount is not 0\n");
                 msg->result = LAT_PLUGIN_RESULT_ERROR;
@@ -138,14 +138,14 @@ void prc20_plugin_call(int message, void *parameters) {
         } break;
 
         case LAT_PLUGIN_QUERY_CONTRACT_ID: {
-            ethQueryContractID_t *msg = (ethQueryContractID_t *) parameters;
+            latQueryContractID_t *msg = (latQueryContractID_t *) parameters;
             strcpy(msg->name, "Type");
             strcpy(msg->version, "Approve");
             msg->result = LAT_PLUGIN_RESULT_OK;
         } break;
 
         case LAT_PLUGIN_QUERY_CONTRACT_UI: {
-            ethQueryContractUI_t *msg = (ethQueryContractUI_t *) parameters;
+            latQueryContractUI_t *msg = (latQueryContractUI_t *) parameters;
             prc20_parameters_t *context = (prc20_parameters_t *) msg->pluginContext;
             switch (msg->screenIndex) {
                 case 0:
@@ -169,10 +169,8 @@ void prc20_plugin_call(int message, void *parameters) {
                         strcpy(msg->msg, (char *) context->contract_name);
                     } else {
                         strcpy(msg->title, "Address");
-                        msg->msg[0] = '0';
-                        msg->msg[1] = 'x';
                         getLatAddressStringFromBinary(context->destinationAddress,
-                                                      (uint8_t *) msg->msg + 2,
+                                                      (uint8_t *) msg->msg,
                                                       msg->pluginSharedRW->sha3,
                                                       chainConfig);
                     }

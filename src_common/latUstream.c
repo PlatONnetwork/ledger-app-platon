@@ -74,6 +74,7 @@ void copyTxData(txContext_t *context, uint8_t *out, uint32_t length) {
     }
     context->workBuffer += length;
     context->commandLength -= length;
+
     if (context->processingField) {
         context->currentFieldPos += length;
     }
@@ -417,6 +418,7 @@ static parserStatus_e parseRLP(txContext_t *context) {
         PRINTF("RLP decode error\n");
         return USTREAM_FAULT;
     }
+
     if (offset == 0) {
         // Hack for single byte, self encoded
         context->workBuffer--;
