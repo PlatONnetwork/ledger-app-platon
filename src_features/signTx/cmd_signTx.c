@@ -3,7 +3,7 @@
 #include "ui_flow.h"
 #include "feature_signTx.h"
 
-#define CHUNKSIZE 150
+#define HASOTHER 0x01
 uint8_t all_tx_data[512];
 uint16_t all_tx_data_offset;
 
@@ -24,7 +24,7 @@ void handleSign(uint8_t p1,
     memmove(all_tx_data+all_tx_data_offset, workBuffer, dataLength);
     all_tx_data_offset += dataLength;
 
-    if(CHUNKSIZE == dataLength) {
+    if(HASOTHER == p2) {
         G_io_apdu_buffer[(*tx)++] = 0x90;
         G_io_apdu_buffer[(*tx)++] = 0x00;
         return;
