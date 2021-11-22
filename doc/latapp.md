@@ -66,7 +66,7 @@ The input data is the RLP encoded transaction (as per https://github.com/ethereu
 
 | *CLA* | *INS*  | *P1*               | *P2*       | *Lc*     | *Le*   |
 | ---   | ---     |   ---                 | ---         | ---       | ---    |
-|   E0  |   04   |  00 : first transaction data block <br> 80 : subsequent transaction data block |   00 | variable | variable |
+|   E0  |   04   |  00 : first transaction data block <br> 80 : subsequent transaction data block |   00 : No renewal <br> 01 : There are renewals | variable | variable |
 
 ##### Input data (first transaction data block)
 
