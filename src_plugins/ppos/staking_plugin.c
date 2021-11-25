@@ -35,7 +35,7 @@ void create_staking(uint8_t *data){
     }
 
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
-    strcpy(strings.common.ppos_type, "create staking");
+    strcpy(strings.common.ppos_type, "Staking");
     strings.common.display_content = DISPLAYNODEID | DISPLAYAMOUNT;
 }
 
@@ -57,7 +57,7 @@ void increase_staking(uint8_t *data){
     }
 
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
-    strcpy(strings.common.ppos_type, "increase staking");
+    strcpy(strings.common.ppos_type, "Add Staking");
     strings.common.display_content = DISPLAYNODEID | DISPLAYAMOUNT;
 }
 
@@ -75,7 +75,7 @@ void withdrew_staking(uint8_t *data){
     }
 
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
-    strcpy(strings.common.ppos_type, "withdrew staking");
+    strcpy(strings.common.ppos_type, "Unstaking");
     strings.common.display_content = DISPLAYNODEID;
 }
 
@@ -97,7 +97,7 @@ void delegate(uint8_t *data){
     }
 
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
-    strcpy(strings.common.ppos_type, "delegate");
+    strcpy(strings.common.ppos_type, "Delegation");
     strings.common.display_content = DISPLAYNODEID | DISPLAYAMOUNT;
 }
 
@@ -119,7 +119,7 @@ void withdrew_delegate(uint8_t *data){
     } 
 
     node_id_to_string(node_id, strings.common.nodeID, sizeof(strings.common.nodeID));
-    strcpy(strings.common.ppos_type, "withdrew delegate");
+    strcpy(strings.common.ppos_type, "UnDelegation");
     strings.common.display_content = DISPLAYNODEID | DISPLAYAMOUNT;
 }
 

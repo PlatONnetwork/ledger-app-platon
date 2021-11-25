@@ -129,21 +129,21 @@ UX_STEP_NOCB(
     ux_approval_ppos_type_step,
     bnnn_paging,
     {
-      .title = "Ppos type",
+      .title = "Tx Type",
       .text = strings.common.ppos_type,
     });
 UX_STEP_NOCB(
     ux_confirm_nodeID_step,
     bnnn_paging,
     {
-      .title = "nodeID",
+      .title = "NodeID",
       .text = strings.common.nodeID
     });
 UX_STEP_NOCB(
     ux_approval_ppos_amount_step,
     bnnn_paging,
     {
-      .title = "Ppos Amount",
+      .title = "Amount(LAT)",
       .text = strings.common.pposAmount
     });
 UX_STEP_CB(
