@@ -10,7 +10,7 @@
 #define GETDELEGATEREWARDPARANUM 4
 
 void get_delegate_reward(uint8_t *data){
-    strcpy(strings.common.ppos_type, "withdrew delegate");
+    strcpy(strings.common.ppos_type, "Claim Reward");
 }
 
 static void parse_reward_info(){

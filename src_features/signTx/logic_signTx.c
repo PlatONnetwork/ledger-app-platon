@@ -252,7 +252,7 @@ void computeFees(char *displayBuffer, uint32_t displayBufferSize) {
 }
 
 void finalizeParsing(bool direct) {
-    char displayBuffer[50];
+    char displayBuffer[100];
     uint8_t decimals = WEI_TO_ETHER;
     char *ticker = get_network_ticker();
     latPluginFinalize_t pluginFinalize;
@@ -396,7 +396,7 @@ void finalizeParsing(bool direct) {
         }
     }
     // Prepare amount to display
-    if (genericUI) {
+    if (genericUI) { 
         amountToString(tmpContent.txContent.value.value,
                        tmpContent.txContent.value.length,
                        decimals,

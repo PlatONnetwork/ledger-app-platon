@@ -105,19 +105,19 @@ typedef enum {
 } contract_call_t;
 
 #define NETWORK_NAME_MAX_SIZE 12
-#define PPOS_TYPE_MAX_SIZE 20
+#define PPOS_TYPE_MAX_SIZE 15
 
 typedef struct txStringProperties_t {
     char fullAddress[43];
-    char fullAmount[50];
+    char fullAmount[90];
     char maxFee[50];
     char nonce[8];  // 10M tx per account ought to be enough for everybody
     char network_name[NETWORK_NAME_MAX_SIZE];
     bool bPpos;
     uint8_t display_content;
     char ppos_type[PPOS_TYPE_MAX_SIZE];
-    char nodeID[150];
-    char pposAmount[50];
+    char nodeID[132];
+    char pposAmount[90];
 } txStringProperties_t;
 
 #define SHARED_CTX_FIELD_1_SIZE 100
