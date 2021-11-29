@@ -9,7 +9,7 @@
 
 // Mappping of chain ids to networks.
 const network_info_t NETWORK_MAPPING[] = {
-    {.chain_id = 100, .name = "Platon", .ticker = "LAT "}
+    {.chain_id = 100, .name = "Platon", .ticker = "LAT"}
 };
 
 uint32_t get_chain_id(void) {
