@@ -6,6 +6,11 @@
 #include "lat_plugin_handler.h"
 #include "ux.h"
 
+#ifdef TARGET_NANOS
+// This function is not exported by the SDK
+void ux_layout_paging_redisplay_by_addr(unsigned int stack_slot);
+#endif
+
 typedef enum {
 
     PLUGIN_UI_INSIDE = 0,

@@ -10,6 +10,7 @@
 #define GETDELEGATEREWARDPARANUM 4
 
 void get_delegate_reward(uint8_t *data){
+    UNUSED(data);
     strcpy(strings.common.ppos_type, "Claim Reward");
 }
 
