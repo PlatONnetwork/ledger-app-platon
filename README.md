@@ -10,44 +10,57 @@ This app support external plugins. More info in [doc/latapp_plugin.md](./doc/lat
 
 # Testing
 
-## Start the speculos emulator
-
-```bash
-./speculos.py bin/app.elf
-```
-
-> Speculos information reference: https://github.com/LedgerHQ/speculos.
-
+Testing is done via the open-source framework zemu.
 ## Running tests
 
-- Install dependencies
+First [install yarn](https://classic.yarnpkg.com/en/docs/install/#debian-stable).
+Open `tests/build_local_test_elfs.sh` and add your BOLOS SDKs path to `NANOS_SDK` and `NANOX_SDK`.
+This helper script will build the applications required by the test suite and move them at the right place.
+```
+cd test
+./build_local_test_elfs.sh
+```
+Then you can install the project by simply running:
+```
+cd ..
+make test
+```
+This will run `make install_tests` and `make run_tests`
 
-  First [install yarn](https://classic.yarnpkg.com/en/docs/install/#debian-stable) or [install node.js](https://nodejs.org/en/).
+To run a specific tests (here the send test):
+```
+cd tests
+jest --runInBand --detectOpenHandles src/send.test.js
+```
 
-  ```bash
-  npm install
-  ```
+Make sure you're in the `tests` folder before running `jest` or `yarn test`.
 
-- Install TypeScript
-
-  ```bash
-  npm install -g typescript
-  ```
-
-- Generate js file
-
-  ```bash
-  tsc test.ts
-  ```
-
-  > The installed version can be checked by the `tsc -v` command.
-
-- Perform unit tests
-
-  ```bash
-  npm run test
-  ```
 
 ## Adding tests
 
-Add a test interface to the test.ts file, and then regenerate the js file to continue running the unit test.
+### Zemu
+
+To add tests, copy one of the already existing test files in `tests/src/`.
+You then need to adapt the `buffer` and `tx` variables to adapt to the APDU you wish to send.
+
+- Adapt the expected screen flow. Please create a folder under `tests/snapshots` with the name of the test you're performing.
+- Then adapt the `ORIGINAL_SNAPSHOT_PATH_PREFIX` with the name of the folder you just created.
+- To create the snapshots, modify the `SNAPSHOT_PATH_PREFIX` and set it to be equal to `ORIGINAL_SNAPSHOT_PATH_PREFIX`.
+- Run the tests once, this will create all the snapshots in the folder you created.
+- Put back your `SNAPSHOT_PATH_PREFIX` to `snapshots/tmp/`.
+
+Finally make sure you adapt the expected signature!
+
+### Update binaries
+
+Don't forget to update the binaries in the test folder. To do so, compile with those environement variables:
+```
+make DEBUG=1 ALLOW_DATA=1
+```
+
+Then copy the binary to the `tests/elfs` folder (in this case, compiled with SDK for nanoS):
+```
+cp bin/app.elf tests/elfs/platon_nanos.elf
+```
+
+Repeat the operation for a binary compiled with nanoX SDK and change for `platon_nanox.elf`.
