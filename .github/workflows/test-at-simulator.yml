@@ -12,4 +12,4 @@ jobs:
       - name: get the code for ledger-app
         run: cd /app && git clone https://github.com/PlatONnetwork/ledger-app-platon.git
       - name: build ledger-app
-        run: cd ledger-app-platon && make
+        run: cd /app/ledger-app-platon && make
