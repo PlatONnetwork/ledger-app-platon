@@ -1,4 +1,4 @@
-name: Build and Test ledger app
+name: run tests
 on: [ push ]
 
 
@@ -8,7 +8,7 @@ jobs:
     container: ledgerhq/ledger-app-builder:latest
     steps:
       - name: update nanos sdk
-        run: cd $BOLOS_SDK && git check master && git pull
+        run: cd $BOLOS_SDK && git checkout master && git pull
       - name: get the code for ledger-app
         run: cd /app && git clone https://github.com/PlatONnetwork/ledger-app-platon.git
       - name: build ledger-app
