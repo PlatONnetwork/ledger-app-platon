@@ -24,7 +24,7 @@ jobs:
       - name: get emulator
         run: docker pull ledgerhq/speculos:latest
       - name: debug
-        run: ls /data/apps
+        run: ls /data
       - name: run emulator
         run: docker run -v /data/apps/ledger-app-platon/bin:/speculos/apps --publish 41000:41000 ledgerhq/speculos --display headless --vnc-port 41000 apps/app.elf
       - name: run tests
