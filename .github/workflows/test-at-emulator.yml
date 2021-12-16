@@ -20,17 +20,10 @@ jobs:
   test:
     needs: build
     runs-on: ubuntu-20.04
-    services:
-      speculos:
-        image: ledgerhq/speculos:latest
-        ports:
-          - 41000:41000
-        volumes:
-          - /data/apps:/speculos/apps
-        options: >-
-          --display headless
-          --vnc-port 41000
-          apps/ledger-app-platon/bin/app.elf
     steps:
+      - name: get emulator
+        run: docker pull ledgerhq/speculos:latest
+      - name: run emulator
+        run: docker run -v /data/apps/ledger-app-platon/bin:/speculos/apps --publish 41000:41000 ledgerhq/speculos --vnc-port 41000 apps/app.elf
       - name: run test
         run: cd /speculos/apps/ledger-app-platon && pip install requments.txt && pytest
