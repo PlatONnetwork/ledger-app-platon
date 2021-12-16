@@ -24,6 +24,6 @@ jobs:
       - name: get emulator
         run: docker pull ledgerhq/speculos:latest
       - name: run emulator
-        run: docker run -v /data/apps/ledger-app-platon/bin:/speculos/apps --publish 41000:41000 ledgerhq/speculos --vnc-port 41000 apps/app.elf
+        run: docker run -v /data/apps/ledger-app-platon/bin:/speculos/apps --publish 41000:41000 ledgerhq/speculos --display headless --vnc-port 41000 apps/app.elf
       - name: run test
         run: cd /speculos/apps/ledger-app-platon && pip install requments.txt && pytest
