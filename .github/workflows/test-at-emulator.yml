@@ -30,9 +30,9 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: app.elf
-          path: /data/
+          path: /data/apps
       - name: debug
-        run: ls /data
+        run: ls /data/apps
       - name: get emulator
         run: docker pull ledgerhq/speculos:latest
       - name: run emulator
