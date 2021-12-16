@@ -30,7 +30,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: app.elf
-          path: /data
+          path: /data/
       - name: debug
         run: ls /data
       - name: get emulator
