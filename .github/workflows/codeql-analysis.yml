@@ -23,7 +23,13 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
+
+    container:
+      image: ledgerhq/ledger-app-builder:latest
+      volumes:
+        - /data/app:/app
+
     permissions:
       actions: read
       contents: read
@@ -37,6 +43,9 @@ jobs:
         # Learn more about CodeQL language support at https://git.io/codeql-language-support
 
     steps:
+    - name: update nanos sdk
+      run: cd $BOLOS_SDK && git checkout master && git pull
+
     - name: Checkout repository
       uses: actions/checkout@v2
 
@@ -52,8 +61,8 @@ jobs:
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
-    #- name: Autobuild
-    #  uses: github/codeql-action/autobuild@v1
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v1
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 https://git.io/JvXDl
