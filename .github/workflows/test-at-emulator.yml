@@ -1,4 +1,4 @@
-name: run tests
+name: build and test
 on: [ push ]
 
 
@@ -30,7 +30,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: app.elf
-          path: /data/apps
+          path: /data/apps/
       - name: debug
         run: ls /data/apps
       - name: get emulator
