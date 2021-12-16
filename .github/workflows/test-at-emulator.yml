@@ -30,14 +30,11 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: app.elf
-      - name: move
-        run: sudo mkdir -p /data/apps && sudo mv app.elf /data/apps
-      - name: debug
-        run: ls /data/apps
+      - run: sudo mkdir -p /data/apps && sudo mv app.elf /data/apps
       - name: get emulator
         run: docker pull ledgerhq/speculos:latest
       - name: run emulator
-        run: docker run -v /data/apps:/speculos/apps --publish 41000:41000 ledgerhq/speculos --display headless --vnc-port 41000 apps/app.elf
+        run: docker run -d -v /data/apps:/speculos/apps --publish 41000:41000 ledgerhq/speculos --display headless --vnc-port 41000 apps/app.elf
       - name: get ledger-app code
         run: cd ~ && git clone https://github.com/PlatONnetwork/ledger-app-platon.git
       - name: run tests
