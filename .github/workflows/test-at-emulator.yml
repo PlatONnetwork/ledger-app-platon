@@ -26,15 +26,17 @@ jobs:
     needs: build
     runs-on: ubuntu-20.04
     steps:
+      - name: debug
+        run: pwd
       - name: mkdir
-        run: mkdir -p /data/apps
+        run: mkdir apps
       - name: download ledger-app
         uses: actions/download-artifact@v2
         with:
           name: app.elf
-          path: /data/apps/
+          path: apps
       - name: debug
-        run: ls /data/apps
+        run: ls apps
       - name: get emulator
         run: docker pull ledgerhq/speculos:latest
       - name: run emulator
