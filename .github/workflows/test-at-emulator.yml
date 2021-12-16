@@ -26,6 +26,8 @@ jobs:
     needs: build
     runs-on: ubuntu-20.04
     steps:
+      - name: mkdir
+        run: mkdir -p /data/apps
       - name: download ledger-app
         uses: actions/download-artifact@v2
         with:
