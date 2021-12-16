@@ -8,7 +8,7 @@ jobs:
     container:
       image: ledgerhq/ledger-app-builder:latest
       volumes:
-        - /data/apps:/app
+        - /data/app:/app
     steps:
       - name: update nanos sdk
         run: cd $BOLOS_SDK && git checkout master && git pull
@@ -16,16 +16,28 @@ jobs:
         run: cd /app && git clone https://github.com/PlatONnetwork/ledger-app-platon.git
       - name: build ledger-app
         run: cd /app/ledger-app-platon && make
+      - name: upload ledger-app
+        uses: actions/upload-artifact@v2
+        with:
+          name: app.elf
+          path: /app/ledger-app-platon/bin/app.elf
 
   test:
     needs: build
     runs-on: ubuntu-20.04
     steps:
-      - name: get emulator
-        run: docker pull ledgerhq/speculos:latest
+      - name: download ledger-app
+        uses: actions/download-artifact@v2
+        with:
+          name: app.elf
+          path: /data/apps
       - name: debug
         run: ls /data
+      - name: get emulator
+        run: docker pull ledgerhq/speculos:latest
       - name: run emulator
-        run: docker run -v /data/apps/ledger-app-platon/bin:/speculos/apps --publish 41000:41000 ledgerhq/speculos --display headless --vnc-port 41000 apps/app.elf
+        run: docker run -v /data/apps:/speculos/apps --publish 41000:41000 ledgerhq/speculos --display headless --vnc-port 41000 apps/app.elf
+      - name: get ledger-app code
+        run: cd ~ && git clone https://github.com/PlatONnetwork/ledger-app-platon.git
       - name: run tests
-        run: cd /speculos/apps/ledger-app-platon && pip install requments.txt && pytest
+        run: cd ~/ledger-app-platon && pip install requments.txt && pytest
