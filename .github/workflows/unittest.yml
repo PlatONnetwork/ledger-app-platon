@@ -22,22 +22,12 @@ jobs:
           echo 2383e4eb4ea23f248d33adc70dc3227e arm-toolchain.tar.bz2 > /tmp/arm-toolchain.md5
           md5sum --check /tmp/arm-toolchain.md5 && rm /tmp/arm-toolchain.md5
           tar xf arm-toolchain.tar.bz2 -C /opt && rm arm-toolchain.tar.bz2
-          export PATH=/opt/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH
-          echo ${PATH}
 
       - name: Install Nano S SDK
-        run: |
-          cd /opt && git clone --branch 2.1.0 https://github.com/LedgerHQ/nanos-secure-sdk.git nanos-secure-sdk
-          export NANOS_SDK=
-        env:
-          NANOS_SDK: /opt/nanos-secure-sdk
-          BOLOS_SDK: /opt/nanos-secure-sdk
+        run: cd /opt && git clone --branch 2.1.0 https://github.com/LedgerHQ/nanos-secure-sdk.git nanos-secure-sdk
 
       - name: Install Nano X SDK
-        run: |
-          cd /opt && git clone --branch 2.0.0 https://github.com/LedgerHQ/nanox-secure-sdk.git nanox-secure-sdk
-          export NANOX_SDK=/opt/nanox-secure-sdk
-          echo ${NANOX_SDK}
+        run: cd /opt && git clone --branch 2.0.0 https://github.com/LedgerHQ/nanox-secure-sdk.git nanox-secure-sdk
 
       - name: Install Node JS
         run: |
@@ -54,14 +44,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: debug
-        run: |
-          echo ${PATH}
-          echo ${NANOS_SDK}
-          echo ${NANOX_SDK}
-          echo ${BOLOS_SDK}
-
       - name: Run tests
+        env:
+          PATH: /opt/gcc-arm-none-eabi-10.3-2021.10/bin:${PATH}
+          NANOS_SDK: /opt/nanos-secure-sdk
+          NANOX_SDK: /opt/nanox-secure-sdk
+          BOLOS_SDK: /opt/nanos-secure-sdk
         run: |
           pip3 install ledgerblue pytest
           make test
