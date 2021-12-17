@@ -9,53 +9,56 @@ jobs:
   unittest:
     runs-on: ubuntu-20.04
     steps:
-#      - name: Install Dependencies
-#        run: |
-#          sudo apt-get install -qy clang clang-tools cmake curl doxygen git lcov libbsd-dev libcmocka0 libcmocka-dev lld make protobuf-compiler python-is-python3 python3 python3-pip
-#          sudo apt-get autoclean -y
-#          sudo apt-get autoremove -y
-#          sudo apt-get clean
-#
-#      - name: Install ARM Embedded Toolchain
-#        run: |
-#          curl -sSfL -o arm-toolchain.tar.bz2 "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2"
-#          echo 2383e4eb4ea23f248d33adc70dc3227e arm-toolchain.tar.bz2 > /tmp/arm-toolchain.md5
-#          md5sum --check /tmp/arm-toolchain.md5 && rm /tmp/arm-toolchain.md5
-#          tar xf arm-toolchain.tar.bz2 -C /opt && rm arm-toolchain.tar.bz2
-#          export PATH=/opt/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH
-#
-#      - name: Install Nano S SDK
-#        run: |
-#          cd /opt && git clone --branch 2.1.0 https://github.com/LedgerHQ/nanos-secure-sdk.git nanos-secure-sdk
-#          export NANOS_SDK=/opt/nanos-secure-sdk
-#          export BOLOS_SDK=${NANOS_SDK}
-#
-#      - name: Install Nano X SDK
-#        run: |
-#          cd /opt && git clone --branch 2.0.0 https://github.com/LedgerHQ/nanox-secure-sdk.git nanox-secure-sdk
-#          export NANOX_SDK=/opt/nanox-secure-sdk
+      - name: Install Dependencies
+        run: |
+          sudo apt-get install -qy clang clang-tools cmake curl doxygen git lcov libbsd-dev libcmocka0 libcmocka-dev lld make protobuf-compiler python-is-python3 python3 python3-pip
+          sudo apt-get autoclean -y
+          sudo apt-get autoremove -y
+          sudo apt-get clean
+
+      - name: Install ARM Embedded Toolchain
+        run: |
+          curl -sSfL -o arm-toolchain.tar.bz2 "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2"
+          echo 2383e4eb4ea23f248d33adc70dc3227e arm-toolchain.tar.bz2 > /tmp/arm-toolchain.md5
+          md5sum --check /tmp/arm-toolchain.md5 && rm /tmp/arm-toolchain.md5
+          tar xf arm-toolchain.tar.bz2 -C /opt && rm arm-toolchain.tar.bz2
+          export PATH=/opt/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH
+
+      - name: Install Nano S SDK
+        run: |
+          cd /opt && git clone --branch 2.1.0 https://github.com/LedgerHQ/nanos-secure-sdk.git nanos-secure-sdk
+          export NANOS_SDK=/opt/nanos-secure-sdk
+          export BOLOS_SDK=${NANOS_SDK}
+
+      - name: Install Nano X SDK
+        run: |
+          cd /opt && git clone --branch 2.0.0 https://github.com/LedgerHQ/nanox-secure-sdk.git nanox-secure-sdk
+          export NANOX_SDK=/opt/nanox-secure-sdk
 
       - name: debug
-        run: |
-          nodejs --version
-          yarn --version
+        run: ls /opt
 
 #      - name: Config Environment
 #        run: export RUSTUP_HOME=/opt/rustup && \
 #             export CARGO_HOME=/opt/.cargo
-#
-##      - name: Install Node JS
-##        run: cd /opt && curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - && \
-##             apt-get install -y nodejs
-##
-##      - name: Install Yarn
-##        run: curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && \
-##             echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
-##             apt update && \
-##             apt install --no-install-recommends yarn
-#
-#      - name: Install Python packages
-#        run: pip3 install ledgerblue pytest
-#
-#      - name: Run tests
-#        run: make test
+
+      - name: Install Node JS
+        run: |
+          cd /opt && curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+
+      - name: Install Yarn
+        run: |
+          cd /opt && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+          echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+          sudo apt update
+          sudo apt install --no-install-recommends yarn
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Python packages
+      run: pip3 install ledgerblue pytest
+
+    - name: Run tests
+      run: make test
