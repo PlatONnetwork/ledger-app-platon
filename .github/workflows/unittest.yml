@@ -11,10 +11,7 @@ jobs:
     steps:
       - name: Install Dependencies
         run: |
-          apt-get update
-          apt-get upgrade -qy
-          apt-get install -qy clang clang-tools cmake curl doxygen git lcov libbsd-dev libcmocka0 \
-                              libcmocka-dev lld make protobuf-compiler
+          apt-get install -qy clang clang-tools cmake curl doxygen git lcov libbsd-dev libcmocka0 libcmocka-dev lld make protobuf-compiler
           apt-get autoclean -y
           apt-get autoremove -y
           apt-get clean
