@@ -11,31 +11,33 @@ jobs:
     steps:
       - name: Install Dependencies
         run: |
-          sudo apt-get install -qy clang clang-tools cmake curl doxygen git lcov libbsd-dev libcmocka0 libcmocka-dev lld make protobuf-compiler
+          sudo apt-get install -qy clang clang-tools cmake curl doxygen git lcov libbsd-dev libcmocka0 libcmocka-dev lld make protobuf-compiler python-is-python3 python3 python3-pip
           sudo apt-get autoclean -y
           sudo apt-get autoremove -y
-          sduo apt-get clean
+          sudo apt-get clean
 
-#      - name: Install ARM Embedded Toolchain
-#        run: curl -sSfL -o arm-toolchain.tar.bz2 "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2" && \
-#             echo 2383e4eb4ea23f248d33adc70dc3227e arm-toolchain.tar.bz2 > /tmp/arm-toolchain.md5 && \
-#             md5sum --check /tmp/arm-toolchain.md5 && rm /tmp/arm-toolchain.md5 && \
-#             tar xf arm-toolchain.tar.bz2 -C /opt && \
-#             rm arm-toolchain.tar.bz2 && \
-#             export PATH=/opt/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH
-#
-#      - name: Install Nano S SDK
-#        run: git clone --branch 2.1.0 https://github.com/LedgerHQ/nanos-secure-sdk.git nanos-secure-sdk && \
-#             export NANOS_SDK=/opt/nanos-secure-sdk && \
-#             export BOLOS_SDK=${NANOS_SDK}
-#
-#      - name: Install Nano X SDK
-#        run: cd /opt && git clone --branch 2.0.0 https://github.com/LedgerHQ/nanox-secure-sdk.git nanox-secure-sdk && \
-#             export NANOX_SDK=/opt/nanox-secure-sdk
-#
-##      - name: Config Environment
-##        run: export RUSTUP_HOME=/opt/rustup && \
-##             export CARGO_HOME=/opt/.cargo
+      - name: Install ARM Embedded Toolchain
+        run: |
+          curl -sSfL -o arm-toolchain.tar.bz2 "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2"
+          echo 2383e4eb4ea23f248d33adc70dc3227e arm-toolchain.tar.bz2 > /tmp/arm-toolchain.md5
+          md5sum --check /tmp/arm-toolchain.md5 && rm /tmp/arm-toolchain.md5
+          tar xf arm-toolchain.tar.bz2 -C /opt && rm arm-toolchain.tar.bz2
+          export PATH=/opt/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH
+
+      - name: Install Nano S SDK
+        run: |
+          cd /opt && git clone --branch 2.1.0 https://github.com/LedgerHQ/nanos-secure-sdk.git nanos-secure-sdk
+          export NANOS_SDK=/opt/nanos-secure-sdk
+          export BOLOS_SDK=${NANOS_SDK}
+
+      - name: Install Nano X SDK
+        run: |
+          cd /opt && git clone --branch 2.0.0 https://github.com/LedgerHQ/nanox-secure-sdk.git nanox-secure-sdk
+          export NANOX_SDK=/opt/nanox-secure-sdk
+
+#      - name: Config Environment
+#        run: export RUSTUP_HOME=/opt/rustup && \
+#             export CARGO_HOME=/opt/.cargo
 #
 ##      - name: Install Node JS
 ##        run: cd /opt && curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - && \
