@@ -1,4 +1,4 @@
-name: "AutoTest"
+name: "unittest"
 on:
   push:
     branches: [ master ]
