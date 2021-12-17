@@ -44,6 +44,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Setup Debug Session
+        uses: csexton/debugger-action@master
+
       - name: Build Ledger App
         env:
           NANOS_SDK: /opt/nanos-secure-sdk
@@ -64,5 +67,3 @@ jobs:
           cd tests && ./build_local_test_elfs.sh && cd ..
           make test
 
-      - name: Setup Debug Session
-        uses: csexton/debugger-action@master
