@@ -22,6 +22,7 @@ jobs:
           echo 2383e4eb4ea23f248d33adc70dc3227e arm-toolchain.tar.bz2 > /tmp/arm-toolchain.md5
           md5sum --check /tmp/arm-toolchain.md5 && rm /tmp/arm-toolchain.md5
           tar xf arm-toolchain.tar.bz2 -C /opt && rm arm-toolchain.tar.bz2
+          echo ${PATH}
 
       - name: Install Nano S SDK
         run: cd /opt && git clone --branch 2.1.0 https://github.com/LedgerHQ/nanos-secure-sdk.git nanos-secure-sdk
@@ -46,10 +47,11 @@ jobs:
 
       - name: Run tests
         env:
-          PATH: /opt/gcc-arm-none-eabi-10.3-2021.10/bin:${{PATH}}
+          PATH: /opt/gcc-arm-none-eabi-10.3-2021.10/bin:${PATH}
           NANOS_SDK: /opt/nanos-secure-sdk
           NANOX_SDK: /opt/nanox-secure-sdk
           BOLOS_SDK: /opt/nanos-secure-sdk
         run: |
+          echo ${PATH}
           pip install ledgerblue pytest
           make test
