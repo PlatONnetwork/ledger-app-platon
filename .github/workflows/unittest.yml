@@ -46,7 +46,7 @@ jobs:
 
       - name: Run tests
         env:
-          PATH: /opt/gcc-arm-none-eabi-10.3-2021.10/bin:${PATH}
+          PATH: /opt/gcc-arm-none-eabi-10.3-2021.10/bin:${{PATH}}
           NANOS_SDK: /opt/nanos-secure-sdk
           NANOX_SDK: /opt/nanox-secure-sdk
           BOLOS_SDK: /opt/nanos-secure-sdk
