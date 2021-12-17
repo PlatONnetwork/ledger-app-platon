@@ -51,6 +51,7 @@ jobs:
           BOLOS_SDK: /opt/nanos-secure-sdk
         run: |
           export PATH=/opt/gcc-arm-none-eabi-10.3-2021.10/bin:${PATH}
+          pip install ledgerblue pytest
           make
 
       - name: Run Unit Tests
@@ -60,5 +61,4 @@ jobs:
           BOLOS_SDK: /opt/nanos-secure-sdk
         run: |
           export PATH=/opt/gcc-arm-none-eabi-10.3-2021.10/bin:${PATH}
-          pip install ledgerblue pytest
           make test
