@@ -28,10 +28,10 @@ jobs:
       - name: Install Nano S SDK
         run: |
           cd /opt && git clone --branch 2.1.0 https://github.com/LedgerHQ/nanos-secure-sdk.git nanos-secure-sdk
-          export NANOS_SDK=/opt/nanos-secure-sdk
-          echo ${NANOS_SDK}
-          export BOLOS_SDK=${NANOS_SDK}
-          echo ${BOLOS_SDK}
+          export NANOS_SDK=
+        env:
+          NANOS_SDK: /opt/nanos-secure-sdk
+          BOLOS_SDK: /opt/nanos-secure-sdk
 
       - name: Install Nano X SDK
         run: |
