@@ -61,4 +61,5 @@ jobs:
           BOLOS_SDK: /opt/nanos-secure-sdk
         run: |
           export PATH=/opt/gcc-arm-none-eabi-10.3-2021.10/bin:${PATH}
+          cd test && ./build_local_test_elfs.sh && cd ..
           make test
