@@ -1,42 +1,70 @@
 name: "AutoTest"
-on: [ push ]
-
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build:
     runs-on: ubuntu-20.04
-    container:
-      image: ledgerhq/ledger-app-builder:latest
-      volumes:
-        - /data/app:/app
     steps:
-      - name: update nanos sdk
-        run: cd $BOLOS_SDK && git checkout master && git pull
-      - name: get ledger-app code
-        run: cd /app && git clone https://github.com/PlatONnetwork/ledger-app-platon.git
-      - name: build ledger-app
-        run: cd /app/ledger-app-platon && make
-      - name: upload ledger-app
-        uses: actions/upload-artifact@v2
-        with:
-          name: app.elf
-          path: /app/ledger-app-platon/bin/app.elf
+      - name: Install Dependencies
+        run: apt-get update && \
+             apt-get upgrade -qy && \
+             apt-get install -qy clang \
+                                 clang-tools \
+                                 cmake \
+                                 curl \
+                                 doxygen \
+                                 git \
+                                 lcov \
+                                 libbsd-dev \
+                                 libcmocka0 \
+                                 libcmocka-dev \
+                                 lld \
+                                 make \
+                                 protobuf-compiler \
+                                 # python-is-python3 \
+                                 # python3 \
+                                 # python3-pip && \
+             apt-get autoclean -y && \
+             apt-get autoremove -y && \
+             apt-get clean
 
-  test:
-    needs: build
-    runs-on: ubuntu-20.04
-    steps:
-      - name: download ledger-app
-        uses: actions/download-artifact@v2
-        with:
-          name: app.elf
-      - name: mv ledger-app
-        run: sudo mkdir -p /data/apps && sudo mv app.elf /data/apps
-      - name: get emulator
-        run: docker pull ledgerhq/speculos:latest
-      - name: run emulator
-        run: docker run -d -v /data/apps:/speculos/apps --publish 41000:41000 ledgerhq/speculos --display headless --vnc-port 41000 apps/app.elf
-      - name: get ledger-app code
-        run: cd ~ && git clone https://github.com/PlatONnetwork/ledger-app-platon.git
-      - name: run tests
-        run: echo "pass"
+      - name: Install ARM Embedded Toolchain
+        run: curl -sSfL -o arm-toolchain.tar.bz2 "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2" && \
+             echo 2383e4eb4ea23f248d33adc70dc3227e arm-toolchain.tar.bz2 > /tmp/arm-toolchain.md5 && \
+             md5sum --check /tmp/arm-toolchain.md5 && rm /tmp/arm-toolchain.md5 && \
+             tar xf arm-toolchain.tar.bz2 -C /opt && \
+             rm arm-toolchain.tar.bz2 && \
+             export PATH=/opt/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH
+
+      - name: Install Nano S SDK
+        run: git clone --branch 2.1.0 https://github.com/LedgerHQ/nanos-secure-sdk.git nanos-secure-sdk && \
+             export NANOS_SDK=/opt/nanos-secure-sdk && \
+             export BOLOS_SDK=${NANOS_SDK}
+
+      - name: Install Nano X SDK
+        run: cd /opt && git clone --branch 2.0.0 https://github.com/LedgerHQ/nanox-secure-sdk.git nanox-secure-sdk && \
+             export NANOX_SDK=/opt/nanox-secure-sdk
+
+#      - name: Config Environment
+#        run: export RUSTUP_HOME=/opt/rustup && \
+#             export CARGO_HOME=/opt/.cargo
+
+#      - name: Install Node JS
+#        run: cd /opt && curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - && \
+#             apt-get install -y nodejs
+#
+#      - name: Install Yarn
+#        run: curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && \
+#             echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
+#             apt update && \
+#             apt install --no-install-recommends yarn
+
+      - name: Install Python packages
+        run: pip3 install ledgerblue pytest
+
+      - name: Run tests
+        run: make test
