@@ -55,7 +55,7 @@ jobs:
           make
 
       - name: Run unit tests
-        # continue-on-error: true    # true if you need start debug session
+        continue-on-error: true    # true if you need start debug session
         env:
           NANOS_SDK: /opt/nanos-secure-sdk
           NANOX_SDK: /opt/nanox-secure-sdk
@@ -65,6 +65,6 @@ jobs:
           cd tests && ./build_local_test_elfs.sh && cd ..
           make test
 
-#      # only used for debug
-#      - name: Start debug session
-#        uses: csexton/debugger-action@master
+      # only used for debug
+      - name: Start debug session
+        uses: csexton/debugger-action@master
