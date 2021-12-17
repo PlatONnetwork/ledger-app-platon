@@ -38,9 +38,9 @@ jobs:
       - name: debug
         run: ls /opt
 
-#      - name: Config Environment
-#        run: export RUSTUP_HOME=/opt/rustup && \
-#             export CARGO_HOME=/opt/.cargo
+      #      - name: Config Environment
+      #        run: export RUSTUP_HOME=/opt/rustup && \
+      #             export CARGO_HOME=/opt/.cargo
 
       - name: Install Node JS
         run: |
@@ -54,11 +54,11 @@ jobs:
           sudo apt update
           sudo apt install --no-install-recommends yarn
 
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Install Python packages
-      run: pip3 install ledgerblue pytest
+      - name: Install Python packages
+        run: pip3 install ledgerblue pytest
 
-    - name: Run tests
-      run: make test
+      - name: Run tests
+        run: make test
