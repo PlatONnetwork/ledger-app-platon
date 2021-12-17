@@ -23,17 +23,21 @@ jobs:
           md5sum --check /tmp/arm-toolchain.md5 && rm /tmp/arm-toolchain.md5
           tar xf arm-toolchain.tar.bz2 -C /opt && rm arm-toolchain.tar.bz2
           export PATH=/opt/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH
+          echo ${PATH}
 
       - name: Install Nano S SDK
         run: |
           cd /opt && git clone --branch 2.1.0 https://github.com/LedgerHQ/nanos-secure-sdk.git nanos-secure-sdk
           export NANOS_SDK=/opt/nanos-secure-sdk
+          echo ${NANOS_SDK}
           export BOLOS_SDK=${NANOS_SDK}
+          echo ${BOLOS_SDK}
 
       - name: Install Nano X SDK
         run: |
           cd /opt && git clone --branch 2.0.0 https://github.com/LedgerHQ/nanox-secure-sdk.git nanox-secure-sdk
           export NANOX_SDK=/opt/nanox-secure-sdk
+          echo ${NANOX_SDK}
 
       - name: Install Node JS
         run: |
@@ -52,8 +56,7 @@ jobs:
 
       - name: debug
         run: |
-          ls
-          echo $BOLOS_SDK
+          echo ${BOLOS_SDK}
 
       - name: Run tests
         run: |
