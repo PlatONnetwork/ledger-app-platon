@@ -56,6 +56,9 @@ jobs:
 
       - name: debug
         run: |
+          echo ${PATH}
+          echo ${NANOS_SDK}
+          echo ${NANOX_SDK}
           echo ${BOLOS_SDK}
 
       - name: Run tests
