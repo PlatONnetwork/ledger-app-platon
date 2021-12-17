@@ -65,6 +65,13 @@ jobs:
           cd tests && ./build_local_test_elfs.sh && cd ..
           make test
 
-#      # only used for debug
+      # only used for debug
+      - name: Upload snapshots
+        uses: actions/upload-artifact@v2
+        with:
+          name: snapshots
+          path: tests/snapshots-tmp
+
+      # only used for debug
       - name: Start debug session
         uses: csexton/debugger-action@master
