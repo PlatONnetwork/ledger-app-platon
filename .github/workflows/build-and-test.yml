@@ -44,7 +44,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Build And Tests
+      - name: Build Ledger App
+        env:
+          NANOS_SDK: /opt/nanos-secure-sdk
+          NANOX_SDK: /opt/nanox-secure-sdk
+          BOLOS_SDK: /opt/nanos-secure-sdk
+        run: |
+          export PATH=/opt/gcc-arm-none-eabi-10.3-2021.10/bin:${PATH}
+          make
+
+      - name: Run Unit Tests
         env:
           NANOS_SDK: /opt/nanos-secure-sdk
           NANOX_SDK: /opt/nanox-secure-sdk
@@ -52,5 +61,4 @@ jobs:
         run: |
           export PATH=/opt/gcc-arm-none-eabi-10.3-2021.10/bin:${PATH}
           pip install ledgerblue pytest
-          make
           make test
