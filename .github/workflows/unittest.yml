@@ -11,10 +11,10 @@ jobs:
     steps:
       - name: Install Dependencies
         run: |
-          apt-get install -qy clang clang-tools cmake curl doxygen git lcov libbsd-dev libcmocka0 libcmocka-dev lld make protobuf-compiler
-          apt-get autoclean -y
-          apt-get autoremove -y
-          apt-get clean
+          sudo apt-get install -qy clang clang-tools cmake curl doxygen git lcov libbsd-dev libcmocka0 libcmocka-dev lld make protobuf-compiler
+          sudo apt-get autoclean -y
+          sudo apt-get autoremove -y
+          sduo apt-get clean
 
 #      - name: Install ARM Embedded Toolchain
 #        run: curl -sSfL -o arm-toolchain.tar.bz2 "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2" && \
