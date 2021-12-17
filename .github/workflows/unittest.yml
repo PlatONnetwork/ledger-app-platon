@@ -35,13 +35,6 @@ jobs:
           cd /opt && git clone --branch 2.0.0 https://github.com/LedgerHQ/nanox-secure-sdk.git nanox-secure-sdk
           export NANOX_SDK=/opt/nanox-secure-sdk
 
-      - name: debug
-        run: ls /opt
-
-      #      - name: Config Environment
-      #        run: export RUSTUP_HOME=/opt/rustup && \
-      #             export CARGO_HOME=/opt/.cargo
-
       - name: Install Node JS
         run: |
           cd /opt && curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
@@ -57,8 +50,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install Python packages
-        run: pip3 install ledgerblue pytest
+      - name: debug
+        run: |
+          ls
+          echo $BOLOS_SDK
 
       - name: Run tests
-        run: make test
+        run: |
+          pip3 install ledgerblue pytest
+          make test
