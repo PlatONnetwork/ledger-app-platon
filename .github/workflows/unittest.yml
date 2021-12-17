@@ -52,6 +52,9 @@ jobs:
           NANOX_SDK: /opt/nanox-secure-sdk
           BOLOS_SDK: /opt/nanos-secure-sdk
         run: |
-          echo ${PATH}
-          pip install ledgerblue pytest
-          make test
+          echo "PATH:${PATH}"
+          echo "NANOS_SDK:${NANOS_SDK}"
+          echo "NANOX_SDK:${NANOX_SDK}"
+          echo "BOLOS_SDK:${BOLOS_SDK}"
+#          pip install ledgerblue pytest
+#          make test
