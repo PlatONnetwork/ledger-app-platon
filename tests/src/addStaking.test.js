@@ -10,7 +10,12 @@ test('[Nano S] add staking', zemu("nanos", async (sim, lat) => {
   );
 
   await waitForAppScreen(sim);
-  await sim.navigateAndCompareSnapshots('.', 'nanos_add_staking', [17, 0]);
+
+  try{
+    await sim.navigateAndCompareSnapshots('.', 'nanos_add_staking', [17, 0]);
+  }catch (e) {
+    console.error(e);
+  }
 
   await expect(tx).resolves.toEqual({
     "r": "fb739d98f1f8dd50f7d5204bf3e4f953d79451cb348a6eb85d2a58ce2a875d04",

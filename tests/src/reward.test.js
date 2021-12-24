@@ -10,7 +10,12 @@ test('[Nano S] "Claim Rewards', zemu("nanos", async (sim, lat) => {
   );
 
   await waitForAppScreen(sim);
-  await sim.navigateAndCompareSnapshots('.', 'nanos_reward', [7, 0]);
+  
+  try{
+    await sim.navigateAndCompareSnapshots('.', 'nanos_reward', [7, 0]);
+  }catch (e) {
+    console.error(e);
+  }
 
   await expect(tx).resolves.toEqual({
     "r": "d61027e3811ddf55dd90b9910ea7a828b39f3c2cf872c50a7979c66002ec37bf",

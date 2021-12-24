@@ -4,11 +4,11 @@ import { waitForAppScreen, zemu } from './test.fixture';
 
 test('[Nano S] transfer prc20 tokens', zemu("nanos", async (sim, lat) => {
 
-  TokenInfo = {
+  const TokenInfo = {
     data: Buffer.from("0850524332302d436456bc6e89ed4a0c2156f22729624319dc2bf255fa00000012000000643045022100f2daf653c4ec97cd5baca6de7fe19a0043fdbbd349e10d4e94b664042e668836022031f620a339543f24cfd1346219fe078f2a0d21fbf21e4496a4d803d0452b49b8", "hex")
   };
 
-  lat.providePRC20TokenInformation(TokenInfo);
+  await lat.providePRC20TokenInformation(TokenInfo);
   
   const tx = lat.signTransaction(
     "44'/486'/0'/0'/0",
@@ -16,7 +16,12 @@ test('[Nano S] transfer prc20 tokens', zemu("nanos", async (sim, lat) => {
   );
 
   await waitForAppScreen(sim);
-  await sim.navigateAndCompareSnapshots('.', 'nanos_transfer', [9, 0]);
+
+  try{
+    await sim.navigateAndCompareSnapshots('.', 'nanos_transfer', [9, 0]);
+  } catch (e) {
+    console.error(e);
+  }
 
   await expect(tx).resolves.toEqual({
     "r": "316fc3eb9d6b64ec992762b16892a169390bb728ec89e1f78eb190a868ebb48a",

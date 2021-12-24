@@ -10,7 +10,12 @@ test('[Nano S] TransferFrom prc721 tokens', zemu("nanos", async (sim, lat) => {
   );
 
   await waitForAppScreen(sim);
-  await sim.navigateAndCompareSnapshots('.', 'nanos_transferFrom', [13, 0]);
+
+  try{
+    await sim.navigateAndCompareSnapshots('.', 'nanos_transferFrom', [13, 0]);
+  } catch (e) {
+    console.error(e);
+  }
 
   await expect(tx).resolves.toEqual({
     "r": "c1338c3620b5bdab4c04de052e245685145152e60bc770e1891eda583605f384",
