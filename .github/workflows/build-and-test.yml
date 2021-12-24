@@ -62,3 +62,14 @@ jobs:
         run: |
           export PATH=/opt/gcc-arm-none-eabi-10.3-2021.10/bin:${PATH}
           make test
+
+      # only used for debug
+      - name: Upload debug snapshots
+        uses: actions/upload-artifact@v2
+        with:
+          name: snapshots
+          path: tests/snapshots-tmp
+
+      # only used for debug
+      - name: Start debug session
+        uses: csexton/debugger-action@master
