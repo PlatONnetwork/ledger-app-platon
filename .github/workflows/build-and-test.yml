@@ -45,7 +45,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build Ledger App
-        continue-on-error: true    # true if you need start debug session
         env:
           NANOS_SDK: /opt/nanos-secure-sdk
           NANOX_SDK: /opt/nanox-secure-sdk
@@ -56,6 +55,7 @@ jobs:
           make
 
       - name: Run Unit Tests
+        continue-on-error: true    # true if you need start debug session
         env:
           NANOS_SDK: /opt/nanos-secure-sdk
           NANOX_SDK: /opt/nanox-secure-sdk
