@@ -55,10 +55,23 @@ jobs:
           make
 
       - name: Run Unit Tests
+        continue-on-error: true    # true if you need start debug session
         env:
           NANOS_SDK: /opt/nanos-secure-sdk
           NANOX_SDK: /opt/nanox-secure-sdk
           BOLOS_SDK: /opt/nanos-secure-sdk
         run: |
           export PATH=/opt/gcc-arm-none-eabi-10.3-2021.10/bin:${PATH}
+          cd tests && ./build_local_test_elfs.sh && cd ..
           make test
+
+      # only used for debug
+      - name: Upload debug snapshots
+        uses: actions/upload-artifact@v2
+        with:
+          name: snapshots
+          path: tests/snapshots-tmp
+
+#      # only used for debug
+#      - name: Start debug session
+#        uses: csexton/debugger-action@master

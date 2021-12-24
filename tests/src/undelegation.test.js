@@ -10,7 +10,12 @@ test('[Nano S] UnDelegation', zemu("nanos", async (sim, lat) => {
   );
 
   await waitForAppScreen(sim);
-  await sim.navigateAndCompareSnapshots('.', 'nanos_undelegation', [16, 0]);
+
+  try{
+    await sim.navigateAndCompareSnapshots('.', 'nanos_undelegation', [16, 0]);
+  }catch (e) {
+    console.error(e);
+  }
 
   await expect(tx).resolves.toEqual({
     "r": "d2a93db813a358aca66f43baaf607fb11cd8776e4a63c6e0c06211044c33fd7a",

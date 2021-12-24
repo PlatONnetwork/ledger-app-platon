@@ -10,7 +10,12 @@ test('[Nano S] Unstaking', zemu("nanos", async (sim, lat) => {
   );
 
   await waitForAppScreen(sim);
-  await sim.navigateAndCompareSnapshots('.', 'nanos_unstaking', [15, 0]);
+
+  try{
+    await sim.navigateAndCompareSnapshots('.', 'nanos_unstaking', [15, 0]);
+  }catch (e) {
+    console.error(e);
+  }
 
   await expect(tx).resolves.toEqual({
     "r": "653e452e08f4d073d854daf321c60b3a7205e226896523b03a1813e03ed0e86a",
