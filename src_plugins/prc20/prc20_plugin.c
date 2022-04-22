@@ -16,10 +16,10 @@ typedef struct prc20_parameters_t {
     uint8_t selectorIndex;
     uint8_t destinationAddress[21];
     uint8_t amount[INT256_LENGTH];
-    uint8_t ticker[MAX_TICKER_LEN];
+    char ticker[MAX_TICKER_LEN];
     uint8_t decimals;
     uint8_t target;
-    uint8_t contract_name[MAX_CONTRACT_NAME_LEN];
+    char contract_name[MAX_CONTRACT_NAME_LEN];
 } prc20_parameters_t;
 
 typedef struct contract_t {
@@ -124,7 +124,7 @@ void prc20_plugin_call(int message, void *parameters) {
                    (msg->token2 != NULL));
             if (msg->token1 != NULL) {
                 context->target = TARGET_ADDRESS;
-                strcpy((char *) context->ticker, (char *) msg->token1->ticker);
+                strlcpy(context->ticker, msg->token1->ticker, MAX_TICKER_LEN);
                 context->decimals = msg->token1->decimals;
                 if (context->selectorIndex == PRC20_APPROVE) {
                     if (check_contract(context)) {
@@ -139,8 +139,8 @@ void prc20_plugin_call(int message, void *parameters) {
 
         case LAT_PLUGIN_QUERY_CONTRACT_ID: {
             latQueryContractID_t *msg = (latQueryContractID_t *) parameters;
-            strcpy(msg->name, "Type");
-            strcpy(msg->version, "Approve");
+            strlcpy(msg->name, "Type", msg->nameLength);
+            strlcpy(msg->version, "Approve", msg->versionLength);
             msg->result = LAT_PLUGIN_RESULT_OK;
         } break;
 
@@ -149,10 +149,10 @@ void prc20_plugin_call(int message, void *parameters) {
             prc20_parameters_t *context = (prc20_parameters_t *) msg->pluginContext;
             switch (msg->screenIndex) {
                 case 0:
-                    strcpy(msg->title, "Amount");
+                    strlcpy(msg->title, "Amount", msg->titleLength);
                     if (ismaxint(context->amount, sizeof(context->amount))) {
-                        strcpy(msg->msg, "Unlimited ");
-                        strcat(msg->msg, (char *) context->ticker);
+                        strlcpy(msg->msg, "Unlimited ", msg->msgLength);
+                        strlcat(msg->msg, context->ticker, msg->msgLength);
                     } else {
                         amountToString(context->amount,
                                        sizeof(context->amount),
@@ -165,10 +165,10 @@ void prc20_plugin_call(int message, void *parameters) {
                     break;
                 case 1:
                     if (context->target >= TARGET_CONTRACT) {
-                        strcpy(msg->title, "Contract");
-                        strcpy(msg->msg, (char *) context->contract_name);
+                        strlcpy(msg->title, "Contract", msg->titleLength);
+                        strlcpy(msg->msg, context->contract_name, msg->msgLength);
                     } else {
-                        strcpy(msg->title, "Address");
+                        strlcpy(msg->title, "Address", msg->titleLength);
                         getLatAddressStringFromBinary(context->destinationAddress,
                                                       (uint8_t *) msg->msg,
                                                       msg->pluginSharedRW->sha3,

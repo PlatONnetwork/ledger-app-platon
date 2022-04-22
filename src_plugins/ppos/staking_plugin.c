@@ -23,8 +23,8 @@ void create_staking(uint8_t *data){
     int amount_step = 8;
 
     for(int i = 1; i < CREATESTAKINGPARANUM; ++i){
+        get_length(&data);
         uint64_t data_length = get_length(&data);
-        data_length = get_length(&data);
         if(node_id_step == i){
             memcpy(node_id, data, data_length);
         }
@@ -45,8 +45,8 @@ void increase_staking(uint8_t *data){
     int amount_step = 3;
 
     for(int i = 1; i < INCREASESTAKINGPARANUM; ++i){
+        get_length(&data);
         uint64_t data_length = get_length(&data);
-        data_length = get_length(&data);
         if(node_id_step == i){
             memcpy(node_id, data, data_length);
         }
@@ -66,8 +66,8 @@ void withdrew_staking(uint8_t *data){
     uint8_t node_id[64] = {};
 
     for(int i = 1; i < WITHDREWSTAKINGPARANUM; ++i){
+        get_length(&data);
         uint64_t data_length = get_length(&data);
-        data_length = get_length(&data);
         if(node_id_step == i){
             memcpy(node_id, data, data_length);
         }
@@ -85,8 +85,8 @@ void delegate(uint8_t *data){
     int amount_step = 3;
 
     for(int i = 1; i < DELEGATEPARANUM; ++i){
+        get_length(&data);
         uint64_t data_length = get_length(&data);
-        data_length = get_length(&data);
         if(node_id_step == i){
             memcpy(node_id, data, data_length);
         }
@@ -107,8 +107,8 @@ void withdrew_delegate(uint8_t *data){
     int amount_step = 3;
 
     for(int i = 1; i < WITHDREWDELEGATEPARANUM; ++i){
+        get_length(&data);
         uint64_t data_length = get_length(&data);
-        data_length = get_length(&data);
         if(node_id_step == i){
             memcpy(node_id, data, data_length);
         }

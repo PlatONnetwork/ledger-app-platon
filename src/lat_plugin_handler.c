@@ -103,7 +103,7 @@ lat_plugin_result_t lat_plugin_perform_init(uint8_t *contractAddress,
                     if (memcmp(init->selector, (const void *) PIC(selectors[j]), SELECTOR_SIZE) == 0) {
                         if ((INTERNAL_LAT_PLUGINS[i].availableCheck == NULL) ||
                             ((PluginAvailableCheck) PIC(INTERNAL_LAT_PLUGINS[i].availableCheck))()) {
-                            strcpy(dataContext.tokenContext.pluginName, INTERNAL_LAT_PLUGINS[i].alias);
+                            strlcpy(dataContext.tokenContext.pluginName, INTERNAL_LAT_PLUGINS[i].alias, 30);
                             dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_OK;
                             contractAddress = NULL;
                             break;
