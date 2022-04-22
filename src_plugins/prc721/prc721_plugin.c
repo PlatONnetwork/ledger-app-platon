@@ -101,8 +101,8 @@ void prc721_plugin_call(int message, void *parameters) {
 
         case LAT_PLUGIN_QUERY_CONTRACT_ID: {
             latQueryContractID_t *msg = (latQueryContractID_t *) parameters;
-            strcpy(msg->name, "Type");
-            strcpy(msg->version, "prc721 transferFrom");
+            strlcpy(msg->name, "Type", msg->nameLength);
+            strlcpy(msg->version, "prc721 transferFrom", msg->versionLength);
             msg->result = LAT_PLUGIN_RESULT_OK;
         } break;
 

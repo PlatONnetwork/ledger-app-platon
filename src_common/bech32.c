@@ -119,7 +119,7 @@ void encode(const uint8_t address[20], const char* hrp, char *result){
     size_t combined_len = cat(values, values_len, check_sum, check_sum_len, combined);
 
     size_t hrp_len = strlen(hrp);
-    strcpy(result, hrp);
+    strlcpy(result, hrp, 45);
     result[hrp_len] = '1';
 
     for(size_t i = 0; i < combined_len; i++){
