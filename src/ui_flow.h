@@ -16,4 +16,3 @@ extern const ux_flow_step_t* const ux_confirm_parameter_flow[];
 extern const ux_flow_step_t* const ux_approval_allowance_flow[];
 
 extern const ux_flow_step_t* const ux_sign_flow[];
-
