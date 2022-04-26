@@ -12,7 +12,7 @@ test('[Nano S] Transfer eip1559', zemu("nanos", async (sim, lat) => {
   await waitForAppScreen(sim);
 
   try{
-    await sim.navigateAndCompareSnapshots('.', 'nanos_eip1559', [7, 0]);
+    await sim.navigateAndCompareSnapshots('.', 'nanos_eip1559', [6, 0]);
   } catch (e) {
     console.error(e);
   }
