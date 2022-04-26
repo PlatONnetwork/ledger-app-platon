@@ -72,6 +72,6 @@ jobs:
           name: snapshots
           path: tests/snapshots-tmp
 
-#      # only used for debug
-#      - name: Start debug session
-#        uses: csexton/debugger-action@master
+     # only used for debug
+     - name: Start debug session
+       uses: csexton/debugger-action@master

@@ -41,7 +41,7 @@ endif
 ifeq ($(CHAIN),platon)
 # Lock the application on its standard path for 1.5. Please complain if non compliant
 APP_LOAD_PARAMS += --path "44'/486'"
-DEFINES += CHAINID_UPCASE=\"PLATON\" CHAINID_COINNAME=\"LAT\" CHAIN_KIND=CHAIN_KIND_PLATON CHAIN_ID=100 CHAIN_HRP=\"lat\"
+DEFINES += CHAINID_UPCASE=\"PLATON\" CHAINID_COINNAME=\"LAT\" CHAIN_KIND=CHAIN_KIND_PLATON CHAIN_ID=210425 CHAIN_HRP=\"lat\"
 APPNAME = "PlatON"
 DEFINES_LIB=
 APP_LOAD_FLAGS=--appFlags 0xa40
