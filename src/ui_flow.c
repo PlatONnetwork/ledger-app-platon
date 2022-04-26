@@ -134,9 +134,11 @@ UX_FLOW(ux_settings_flow,
 void display_settings(const ux_flow_step_t* const start_step) {
     strlcpy(strings.common.fullAddress, (N_storage.dataAllowed ? "Allowed" : "NOT Allowed"), 12);
     strlcpy(strings.common.fullAddress + 12,
-           (N_storage.contractDetails ? "Displayed" : "NOT Displayed"), 26 - 12);
+            (N_storage.contractDetails ? "Displayed" : "NOT Displayed"),
+            26 - 12);
     strlcpy(strings.common.fullAddress + 26,
-           (N_storage.displayNonce ? "Displayed" : "NOT Displayed"), sizeof(strings.common.fullAddress) - 26);
+            (N_storage.displayNonce ? "Displayed" : "NOT Displayed"),
+            sizeof(strings.common.fullAddress) - 26);
     ux_flow_init(0, ux_settings_flow, start_step);
 }
 

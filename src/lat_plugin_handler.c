@@ -3,7 +3,6 @@
 #include "lat_plugin_internal.h"
 #include "shared_context.h"
 
-
 void staking_plugin_call(int message, void *parameters);
 void reward_plugin_call(int message, void *parameters);
 
@@ -82,11 +81,13 @@ lat_plugin_result_t lat_plugin_perform_init(uint8_t *contractAddress,
         dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_OK;
         contractAddress = NULL;
     } else {
-        if (memcmp(contractAddress, (const void *) PIC(STAKINGCONTRACTADDRESS), 20) == 0){          // 经济模型处理
+        if (memcmp(contractAddress, (const void *) PIC(STAKINGCONTRACTADDRESS), 20) ==
+            0){          // 经济模型处理
             strcpy(dataContext.tokenContext.pluginName, "staking");
             dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_OK;
             contractAddress = NULL;
-        } else if (memcmp(contractAddress, (const void *) PIC(REWARDCONTRACTADDRESS), 20) == 0){    // 领取奖励
+        } else if (memcmp(contractAddress, (const void *) PIC(REWARDCONTRACTADDRESS), 20) ==
+                   0){    // 领取奖励
             strcpy(dataContext.tokenContext.pluginName, "reward");
             dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_OK;
             contractAddress = NULL;
@@ -98,12 +99,17 @@ lat_plugin_result_t lat_plugin_perform_init(uint8_t *contractAddress,
                 if (selectors == NULL) {
                     break;
                 }
-                for (j = 0; ((j < INTERNAL_LAT_PLUGINS[i].num_selectors) && (contractAddress != NULL));
-                    j++) {
-                    if (memcmp(init->selector, (const void *) PIC(selectors[j]), SELECTOR_SIZE) == 0) {
+                for (j = 0;
+                     ((j < INTERNAL_LAT_PLUGINS[i].num_selectors) && (contractAddress != NULL));
+                     j++) {
+                    if (memcmp(init->selector, (const void *) PIC(selectors[j]), SELECTOR_SIZE) ==
+                        0) {
                         if ((INTERNAL_LAT_PLUGINS[i].availableCheck == NULL) ||
-                            ((PluginAvailableCheck) PIC(INTERNAL_LAT_PLUGINS[i].availableCheck))()) {
-                            strlcpy(dataContext.tokenContext.pluginName, INTERNAL_LAT_PLUGINS[i].alias, 30);
+                            ((PluginAvailableCheck) PIC(
+                                INTERNAL_LAT_PLUGINS[i].availableCheck))()) {
+                            strlcpy(dataContext.tokenContext.pluginName,
+                                    INTERNAL_LAT_PLUGINS[i].alias,
+                                    30);
                             dataContext.tokenContext.pluginStatus = LAT_PLUGIN_RESULT_OK;
                             contractAddress = NULL;
                             break;
@@ -210,10 +216,10 @@ lat_plugin_result_t lat_plugin_call(int method, void *parameter) {
     }
 
     // Perform the call
-    if(strcmp(alias, "staking") == 0){
+    if(strcmp(alias, "staking") == 0) {
         internalPlugin = 1;
         staking_plugin_call(method, parameter);
-    }else if(strcmp(alias, "reward") == 0){
+    } else if(strcmp(alias, "reward") == 0) {
         internalPlugin = 1;
         reward_plugin_call(method, parameter);
     } else {
