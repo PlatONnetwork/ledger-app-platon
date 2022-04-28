@@ -25,12 +25,8 @@ void lat_plugin_prepare_finalize(latPluginFinalize_t *finalize) {
     memset((uint8_t *) finalize, 0, sizeof(latPluginFinalize_t));
 }
 
-void lat_plugin_prepare_provide_token(latPluginProvideToken_t *provideToken,
-                                      tokenDefinition_t *token1,
-                                      tokenDefinition_t *token2) {
+void lat_plugin_prepare_provide_token(latPluginProvideToken_t *provideToken) {
     memset((uint8_t *) provideToken, 0, sizeof(latPluginProvideToken_t));
-    provideToken->token1 = token1;
-    provideToken->token2 = token2;
 }
 
 void lat_plugin_prepare_query_contract_ID(latQueryContractID_t *queryContractID,
