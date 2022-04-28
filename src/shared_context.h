@@ -105,7 +105,7 @@ typedef enum {
 } contract_call_t;
 
 #define NETWORK_NAME_MAX_SIZE 12
-#define PPOS_TYPE_MAX_SIZE 15
+#define PPOS_TYPE_MAX_SIZE    15
 
 typedef struct txStringProperties_t {
     char fullAddress[43];
