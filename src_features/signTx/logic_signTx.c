@@ -256,7 +256,6 @@ void finalizeParsing(bool direct) {
     uint8_t decimals = WEI_TO_ETHER;
     char *ticker = get_network_ticker();
     latPluginFinalize_t pluginFinalize;
-    tokenDefinition_t *token1 = NULL, *token2 = NULL;
     bool genericUI = true;
 
     // Verify the chain
@@ -307,23 +306,22 @@ void finalizeParsing(bool direct) {
 
         // Lookup tokens if requested
         latPluginProvideToken_t pluginProvideToken;
+        lat_plugin_prepare_provide_token(&pluginProvideToken);
         if ((pluginFinalize.tokenLookup1 != NULL) || (pluginFinalize.tokenLookup2 != NULL)) {
             if (pluginFinalize.tokenLookup1 != NULL) {
                 PRINTF("Lookup1: %.*H\n", ADDRESS_LENGTH, pluginFinalize.tokenLookup1);
-                token1 = getKnownToken(pluginFinalize.tokenLookup1);
-                if (token1 != NULL) {
-                    PRINTF("Token1 ticker: %s\n", token1->ticker);
+                pluginProvideToken.token1 = getKnownToken(pluginFinalize.tokenLookup1);
+                if (pluginProvideToken.token1 != NULL) {
+                    PRINTF("Token1 ticker: %s\n", pluginProvideToken.token1->ticker);
                 }
             }
             if (pluginFinalize.tokenLookup2 != NULL) {
                 PRINTF("Lookup2: %.*H\n", ADDRESS_LENGTH, pluginFinalize.tokenLookup2);
-                token2 = getKnownToken(pluginFinalize.tokenLookup2);
-                if (token2 != NULL) {
-                    PRINTF("Token2 ticker: %s\n", token2->ticker);
+                pluginProvideToken.token2 = getKnownToken(pluginFinalize.tokenLookup2);
+                if (pluginProvideToken.token2 != NULL) {
+                    PRINTF("Token2 ticker: %s\n", pluginProvideToken.token2->ticker);
                 }
             }
-
-            lat_plugin_prepare_provide_token(&pluginProvideToken, token1, token2);
             if (lat_plugin_call(LAT_PLUGIN_PROVIDE_TOKEN, (void *) &pluginProvideToken) <=
                 LAT_PLUGIN_RESULT_UNSUCCESSFUL) {
                 PRINTF("Plugin provide token call failed\n");
@@ -359,9 +357,9 @@ void finalizeParsing(bool direct) {
                     tmpContent.txContent.value.length = 32;
                     memmove(tmpContent.txContent.destination, pluginFinalize.address, 20);
                     tmpContent.txContent.destinationLength = 20;
-                    if (token1 != NULL) {
-                        decimals = token1->decimals;
-                        ticker = (char *) token1->ticker;
+                    if (pluginProvideToken.token1 != NULL) {
+                        decimals = pluginProvideToken.token1->decimals;
+                        ticker = (char *) pluginProvideToken.token1->ticker;
                     }
                     break;
                 default:

@@ -7,9 +7,7 @@ void lat_plugin_prepare_provide_parameter(latPluginProvideParameter_t *providePa
                                           uint8_t *parameter,
                                           uint32_t parameterOffset);
 void lat_plugin_prepare_finalize(latPluginFinalize_t *finalize);
-void lat_plugin_prepare_provide_token(latPluginProvideToken_t *provideToken,
-                                      tokenDefinition_t *token1,
-                                      tokenDefinition_t *token2);
+void lat_plugin_prepare_provide_token(latPluginProvideToken_t *provideToken);
 void lat_plugin_prepare_query_contract_ID(latQueryContractID_t *queryContractID,
                                           char *name,
                                           uint32_t nameLength,
